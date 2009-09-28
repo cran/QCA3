@@ -1,0 +1,5 @@
+2009-01-17
+	* check value of nlevels argument in cs_truthTable and reduce.default
+	
+2009-01-16
+	* reduce is generic function now.

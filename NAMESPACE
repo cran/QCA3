@@ -1,0 +1,12 @@
+export(constrReduce,coincid, CSA, cs_truthTable,
+       fs_tt, fs_truthTable, reduce, SA,suffnec,
+       thresholdssetter)
+S3method(print, coincid)
+S3method(print, QCA)
+S3method(print, suffnec)
+S3method(print, summary.QCA)
+S3method(print, truthTable)
+S3method(reduce, truthTable)
+S3method(reduce, default)
+S3method(summary, QCA)
+S3method('[',QCA)
