@@ -33,7 +33,7 @@ coincid(x, standardized = FALSE, use = c("complete", "pairwise"))
 }
 
 \author{Ronggui HUANG}
-\seealso{\code{\link[ASRR]{suffnec}}}
+\seealso{\code{\link[QCA3]{suffnec}}}
 
 %\examples{
 %}
