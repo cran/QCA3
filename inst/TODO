@@ -1,0 +1,9 @@
+* implement procedure of MSDO/MDSO in p29
+
+* undocumented functions include findParsimonious, overlap, which.commonConfiguration.
+
+* plot method for QCA object with aids from Vennerable packages.
+
+* Can use gtools to improve speed of solvePIChart(), but not use it until necessary.
+
+* handle necessary conditions.

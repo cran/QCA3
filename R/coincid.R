@@ -42,5 +42,3 @@ print.coincid <- function(x,digits=3,...)
   x<-unclass(x)
   print(x,digits=digits,na.print=" ",quote = FALSE,...)
 }
-
-# coincid(nssf[,c("q43d","q43e","q43f")])

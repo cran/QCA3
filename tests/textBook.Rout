@@ -1,0 +1,222 @@
+
+R version 2.10.1 (2009-12-14)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Loading required package: ASRR
+Loading required package: QCA3
+Loading required package: ASAtable
+> ## text book example from "Configuraional comparative Methods"
+> library(QCA3)
+> ## csQCA
+> conditions <- c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB", "GOVSTAB")
+> ans1a <- reduce(Lipset_cs,"SURVIVAL",conditions,explain="positive",remainder="exclude",case="CASEID")
+> QCA3:::prettyPI(ans1a)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP*urbaniza*LITERACY*GOVSTAB + GNPCAP*LITERACY*INDLAB*GOVSTAB"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 1 in Rihoux and De Meur(2009:57)
+> ans0a <- reduce(Lipset_cs,"SURVIVAL",conditions,explain="negative",remainder="exclude",case="CASEID")
+> QCA3:::prettyPI(ans0a)
+[[1]]
+[[1]]$PI
+[1] "gnpcap*urbaniza*indlab + GNPCAP*LITERACY*INDLAB*govstab"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 3 in Rihoux and De Meur(2009:59)
+> ans1 <- reduce(Lipset_cs,"SURVIVAL",conditions,explain="positive",remainder="include",case="CASEID")
+> QCA3:::prettyPI(ans1)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP*GOVSTAB"
+
+[[1]]$N
+[1] 1
+
+
+> ## Formula 4 in Rihoux and De Meur(2009:60)
+> QCA3:::prettyPI(SA(ans1)) ## 5 simplifying assumptions in p61
+[[1]]
+[[1]]$PI
+[1] "GNPCAP*urbaniza*literacy*indlab*GOVSTAB + GNPCAP*URBANIZA*literacy*indlab*GOVSTAB + GNPCAP*URBANIZA*LITERACY*indlab*GOVSTAB + GNPCAP*urbaniza*literacy*INDLAB*GOVSTAB + GNPCAP*URBANIZA*literacy*INDLAB*GOVSTAB"
+
+[[1]]$N
+[1] 5
+
+
+> ans0 <- reduce(Lipset_cs,"SURVIVAL",conditions,explain="negative",remainder="include",case="CASEID")
+> QCA3:::prettyPI(ans0)
+[[1]]
+[[1]]$PI
+[1] "gnpcap + govstab"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 5 in Rihoux and De Meur(2009:61)
+> QCA3:::prettyPI(SA(ans0)) ## 18 simplifying assumptions
+[[1]]
+[[1]]$PI
+[1] "gnpcap*URBANIZA*literacy*indlab*govstab + gnpcap*URBANIZA*LITERACY*indlab*govstab + gnpcap*urbaniza*literacy*INDLAB*govstab + gnpcap*URBANIZA*literacy*INDLAB*govstab + gnpcap*urbaniza*LITERACY*INDLAB*govstab + gnpcap*URBANIZA*LITERACY*INDLAB*govstab + gnpcap*URBANIZA*literacy*indlab*GOVSTAB + gnpcap*URBANIZA*LITERACY*indlab*GOVSTAB + gnpcap*urbaniza*literacy*INDLAB*GOVSTAB + gnpcap*URBANIZA*literacy*INDLAB*GOVSTAB + gnpcap*urbaniza*LITERACY*INDLAB*GOVSTAB + gnpcap*URBANIZA*LITERACY*INDLAB*GOVSTAB + GNPCAP*urbaniza*literacy*indlab*govstab + GNPCAP*URBANIZA*literacy*indlab*govstab + GNPCAP*urbaniza*LITERACY*indlab*govstab + GNPCAP*URBANIZA*LITERACY*indlab*govstab + GNPCAP*urbaniza*literacy*INDLAB*govstab + GNPCAP*URBANIZA*literacy*INDLAB*govstab"
+
+[[1]]$N
+[1] 18
+
+
+> 
+> 
+> ## mvQCA
+> conditions <- c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB")
+> if (packageDescription('QCA3')$Version <= "0.0-2") {
++   mvTT <- cs_truthTable(Lipset_mv,"SURVIVAL",conditions,case="CASEID",nlevels=c(3,2,2,2))
++ } else mvTT <- mv_truthTable(Lipset_mv,"SURVIVAL",conditions,case="CASEID")
+> 
+> ans1a <- reduce(mvTT,explain="positive",remainder="exclude",case="CASEID")
+> QCA3:::prettyPI(ans1a)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{1}*URBANIZA{0}*LITERACY{1}*INDLAB{0} + GNPCAP{2}*LITERACY{1}*INDLAB{1}"
+
+[[1]]$N
+[1] 2
+
+
+> ## formula 1 Cronqvist and Berg-Schlosser(2009:80)
+> ans1 <- reduce(mvTT,explain="positive",remainder="include",case="CASEID")
+> QCA3:::prettyPI(ans1)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{2} + GNPCAP{1}*INDLAB{0}"
+
+[[1]]$N
+[1] 2
+
+
+> ## formula 2 in Cronqvist and Berg-Schlosser(2009:81)
+> QCA3:::prettyPI(SA(ans1))
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{2}*URBANIZA{0}*LITERACY{0}*INDLAB{0} + GNPCAP{2}*URBANIZA{1}*LITERACY{0}*INDLAB{0} + GNPCAP{2}*URBANIZA{0}*LITERACY{1}*INDLAB{0} + GNPCAP{2}*URBANIZA{1}*LITERACY{1}*INDLAB{0} + GNPCAP{2}*URBANIZA{0}*LITERACY{0}*INDLAB{1} + GNPCAP{2}*URBANIZA{1}*LITERACY{0}*INDLAB{1} + GNPCAP{1}*URBANIZA{0}*LITERACY{0}*INDLAB{0} + GNPCAP{1}*URBANIZA{1}*LITERACY{0}*INDLAB{0} + GNPCAP{1}*URBANIZA{1}*LITERACY{1}*INDLAB{0}"
+
+[[1]]$N
+[1] 9
+
+
+> ## 9 SAs (see end note 7)
+> ans0a <- reduce(mvTT,explain="negative",remainder="exclude",case="CASEID")
+> QCA3:::prettyPI(ans0a)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{0}*URBANIZA{0}*INDLAB{0} + GNPCAP{1}*URBANIZA{0}*LITERACY{1}*INDLAB{1}"
+
+[[1]]$N
+[1] 2
+
+
+> ## formula 3 in Cronqvist and Berg-Schlosser(2009:81)
+> ans0 <- reduce(mvTT,explain="negative",remainder="include",contrad="positive",case="CASEID")
+> QCA3:::prettyPI(ans0)
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{0} + GNPCAP{1}*INDLAB{1}"
+
+[[1]]$N
+[1] 2
+
+
+> ## formula 4 in Cronqvist and Berg-Schlosser(2009:81)
+> QCA3:::prettyPI(SA(ans0))
+[[1]]
+[[1]]$PI
+[1] "GNPCAP{0}*URBANIZA{1}*LITERACY{0}*INDLAB{0} + GNPCAP{0}*URBANIZA{1}*LITERACY{1}*INDLAB{0} + GNPCAP{0}*URBANIZA{0}*LITERACY{0}*INDLAB{1} + GNPCAP{0}*URBANIZA{1}*LITERACY{0}*INDLAB{1} + GNPCAP{0}*URBANIZA{0}*LITERACY{1}*INDLAB{1} + GNPCAP{0}*URBANIZA{1}*LITERACY{1}*INDLAB{1} + GNPCAP{1}*URBANIZA{0}*LITERACY{0}*INDLAB{1} + GNPCAP{1}*URBANIZA{1}*LITERACY{0}*INDLAB{1} + GNPCAP{1}*URBANIZA{1}*LITERACY{1}*INDLAB{1}"
+
+[[1]]$N
+[1] 9
+
+
+> ## 7 SAs (see end note 9)
+> 
+> 
+> ## fsQCA
+> conditions <- c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ")
+> ans1a <- reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="exclude",prepro="fs",consistency=0.7)
+Warning message:
+In fs_truthTable(mydata = list(Country = 1:18, Survived = c(-9,  :
+  It is suggested that consistency_cutoff be >= 0.75.
+> QCA3:::prettyPI(ans1a)
+[[1]]
+[[1]]$PI
+[1] "DEVELOPED.FZ*urban.fz*LITERATE.FZ*STABLE.FZ + DEVELOPED.FZ*LITERATE.FZ*INDUSTRIAL.FZ*STABLE.FZ"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 1 in Ragin (2009:112)
+> ans0a <- reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="include",prepro="fs",consistency=0.7)
+Warning message:
+In fs_truthTable(mydata = list(Country = 1:18, Survived = c(-9,  :
+  It is suggested that consistency_cutoff be >= 0.75.
+> QCA3:::prettyPI(ans0a)
+[[1]]
+[[1]]$PI
+[1] "DEVELOPED.FZ*STABLE.FZ"
+
+[[1]]$N
+[1] 1
+
+
+> ## Formula 2 in Ragin (2009:114)
+> ans0 <- reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="exclude",prepro="fs",consistency=0.7)
+Warning message:
+In fs_truthTable(mydata = list(Country = 1:18, Survived = c(-9,  :
+  It is suggested that consistency_cutoff be >= 0.75.
+> QCA3:::prettyPI(ans0)
+[[1]]
+[[1]]$PI
+[1] "developed.fz*urban.fz*industrial.fz + DEVELOPED.FZ*LITERATE.FZ*INDUSTRIAL.FZ*stable.fz"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 5 in Ragin (2009:115)
+> ans1 <- reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="include",prepro="fs",consistency=0.7)
+Warning message:
+In fs_truthTable(mydata = list(Country = 1:18, Survived = c(-9,  :
+  It is suggested that consistency_cutoff be >= 0.75.
+> QCA3:::prettyPI(ans1)
+[[1]]
+[[1]]$PI
+[1] "developed.fz + stable.fz"
+
+[[1]]$N
+[1] 2
+
+
+> ## Formula 6 in Ragin (2009:117)
+> 
+> proc.time()
+   user  system elapsed 
+   1.76    0.10    1.84 

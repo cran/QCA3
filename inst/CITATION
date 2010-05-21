@@ -1,0 +1,17 @@
+citHeader("To cite package 'QCA3' in publications use:")
+     
+     year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+     vers <- paste("R package version", meta$Version)
+     url  <- meta$URL
+
+     citEntry(entry="Manual",
+              title = "QCA3: Yet another package for Qualitative Comparative Analysis",
+              author = personList(as.person("Ronggui HUANG")),
+              year = year,
+              note = vers,
+	      url = url,
+
+              textVersion =
+              paste("HUANG, Ronggui. ",
+                    "(",year,"). QCA3: Yet another package for Qualitative Comparative Analysis.",
+                    vers, ". URL ", url, ".", sep=""))

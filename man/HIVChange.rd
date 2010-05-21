@@ -1,7 +1,7 @@
 \name{HIVChange}
 \alias{HIVChange}
 \docType{data}
-\title{HIV prevalence in Sub-Saharan Africa}
+\title{data about HIV prevalence in Sub-Saharan Africa}
 \description{
 Data set from Cronqvist and Berg-Schlosser(2006), examining the HIV
 prevalence in Sub-Saharan Africa.
@@ -38,14 +38,24 @@ prevalence in Sub-Saharan Africa.
   Rihoux and Heike Grimm (Eds).Springer.
 }
 \examples{
-cond <- c("LIT00", "GENDEREQ", "MORTALITY", "AGRARGDP")
-## example in p161: not exactly the same solution. This one is correct too (tell me if you don't think so)
-reduce(HIVChange,"HIVChange",cond,expl="positive",rem="incl",contr="negative",nlevels=c(2,2,3,2),pre="pass",NCase="NCase",Cases="Country")
-reduce(HIVChange,"HIVChange",cond,expl="negative",rem="incl",contr="positive",nlevels=c(2,2,3,2),pre="pass",NCase="NCase",Cases="Country")
+ ## manually construct a truthTable for mvQCA
+ conditions <- c("LIT00", "GENDEREQ", "MORTALITY", "AGRARGDP")
+ HIVChange$OUT <- HIVChange$HIVChange
+ HTT <- HIVChange[,c(conditions,"OUT","NCase","Country")]
+ names(HTT) <- c(conditions,"OUT","NCase","Cases")
+ ## optional
+ mvTT <- list(truthTable=HTT,nlevels=c(2,2,3,2),conditions=conditions)
+ ## only some components are rquired
+ class(mvTT) <- "truthTable"
 
-## example in p163
-reduce(HIVChange,"HIVChange",cond,expl="positive",rem="incl",contr="negative",nlevels=c(2,2,3,2),pre="pass",NCase="NCase",Cases="Country")
-reduce(HIVChange,"HIVChange",cond,expl="negative",rem="incl",contr="negative",nlevels=c(2,2,3,2),pre="pass",NCase="NCase",Cases="Country")
-## C.A.R is positive, all other three are nagetive
+ ## Example in p161: not exactly the same solution.
+ ##    This one is correct too (tell me if you don't think so)
+ reduce(mvTT,expl="pos",remainder="include",contr="negative")
+ reduce(mvTT,expl="neg",remainder="include",contr="positive")
+
+ ## Example in p163
+ reduce(mvTT,expl="pos",remainder="include",contr="negative")
+ reduce(mvTT,expl="neg",remainder="include",contr="negative")
+ ## C.A.R is positive, all other three are nagetive
 }
 \keyword{datasets}

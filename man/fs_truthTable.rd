@@ -6,7 +6,7 @@
 }
 \usage{
 fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
-             consistency_cutoff = 0.8, complete = FALSE,
+             consistency_cutoff = 0.8,
              show.cases =TRUE,quiet =FALSE, cases = NULL, ...)
 }
 \arguments{
@@ -18,8 +18,7 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
     be regarded as dontcare configuration.}
   \item{consistency_cutoff}{Cutoff point of consistenty score, cases with
     consistency score greater than cutoff point are regarded as OUT=1. }
-  \item{complete}{prints the complete truth table, including
-    configurations without empirical cases.}
+  % \item{complete}{prints the complete truth table, including configurations without empirical cases.}
   \item{show.cases}{show the rownames from the original dataset for each
     combination of conditions.}
   \item{quiet}{Not used currently.}
@@ -40,7 +39,7 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
   argument), we can finally construct a truthTable.
 }
 \value{
-A truthTable.
+  An object of class "truthTable" and "fs_truthTable".
 }
 \references{
   Ragin. Charles. 2009. Qualitative Comparative Analyais Using Fuzzy
@@ -50,7 +49,7 @@ A truthTable.
   \url{http://www.u.arizona.edu/~cragin/fsQCA/software.shtml}.
 }
 \author{Ronggui HUANG}
-\seealso{\code{\link{reduce}} \code{\link{cs_truthTable}}}
+\seealso{\code{\link{reduce}}, \code{\link{cs_truthTable}} and  \code{\link{fs_truthTable}}}
 \examples{
 fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
 "Stable.FZ"),cases="Country",consistency_cutoff=0.7)   

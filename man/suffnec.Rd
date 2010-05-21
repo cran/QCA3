@@ -26,6 +26,9 @@ then the score of X should be consistently less or equal than that of
 Y. Similarly, if X is the necessary condition of Y, then
 the sore of X should be consistently greater or equal than that of
 Y. The necessary score measures such consitency. The formulas can be found in Ragin(2006:297).
+
+For crip set, sufficient score measures proportation of Y=1 given that X=1. 
+The neccessary score measures the proportation of X=1 given that Y=1.
  }
 \value{
   A list of two matrixs of consistency score.
@@ -41,7 +44,6 @@ Their Consistency and Coverage." Political Analysis 14 (3) : 291-310
 
  \author{Ronggui HUANG}
  \seealso{ \code{\link[QCA3]{coincid}}}
-% \examples{
-%}
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+ \examples{
+suffnec(CoD[,c('cod',"econdev","ethlihom","nocom")]) 
+}

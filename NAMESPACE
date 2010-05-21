@@ -1,12 +1,20 @@
-export(constrReduce,coincid, CSA, cs_truthTable,
-       fs_tt, fs_truthTable, reduce, SA,suffnec,
+export(constrReduce,coincid,consistency, coverage, CSA, cs_truthTable,excludeCSA, findNoCSA,
+       fs_tt, fs_truthTable, mv_truthTable, reduce, SA, simplifyingAssumption, suffnec,
        thresholdssetter)
+S3method(coverage, QCA)
+S3method(coverage, default)
+#S3method(drop1, truthTable)
 S3method(print, coincid)
 S3method(print, QCA)
+S3method(plot, QCA)
 S3method(print, suffnec)
 S3method(print, summary.QCA)
 S3method(print, truthTable)
-S3method(reduce, truthTable)
+S3method(reduce, data.frame)
 S3method(reduce, default)
+S3method(reduce, formula)
+S3method(reduce, truthTable)
 S3method(summary, QCA)
 S3method('[',QCA)
+S3method(update,QCA)
+import(lpSolve)

@@ -1,0 +1,115 @@
+2010-05-21
+	* plot.QCA
+	* add tests
+	* exported findNoCSA
+
+2010-05-15
+	* move functions of truthTable to a seperate file truthTable.R
+	* experimental function  solveBigPIChart (not exported).
+	* revised findNoCSA since -9 is the dontcare value now.
+
+2010-05-14
+	* experimental function of combnBySplit (not exported).
+	* new data set GiugniYamasaki2009
+	* improvement of various Rd files.
+
+2010-05-13
+	* revised call element in excludeCSA and constrReduce.
+	* Improve doc of excludeCSA
+
+2010-05-10
+	* minor bugfix of reduce and CSA, new function of excludeCSA.
+
+2010-05-08
+	* minor bugfix of coverage.QCA
+
+2010-05-07
+	* coverage method for QCA object
+	* improve and document coverage.QCA
+
+2010-05-03
+	* update SA.rd.
+
+2010-04-30
+	* add new dataset Yamasaki2009.
+	* minor bugfix of summary.QCA.
+
+2010-04-28
+	* update method for QCA is exported.
+	* minor bugfix of reduce.truthTable.
+
+2010-04-27
+	* bugfix of reduce2 (configurations can be used more than one time to yield simpler solution).
+	* dontcare case is denoted by value of -9 now.
+	* add data of CarenPanofsky, and example of TQCA.
+	* argument complete is defunct (in cs_truthTable and fs_truthTable)
+	* new function of mv_truthTable (based on cs_truthTable).
+	* reduce function has been tidied with change of argument.
+	* change track can be found in rev 92.
+
+2010-04-26
+	* unexport several functions.
+	* revert solvePIChart's method argument to previous one (so gtools is not required).
+	* improvement of reduce.Rd and minor bugfix of CoD.rd and suffnec.Rd.
+	* to make it pass R CMD check.
+
+2010-03-23
+	* forumla method of reduce.
+
+2010-03-18
+	* cs_truthTable return a component of call.
+	* drop1 method for truthTable for exploration of conditions.
+	* improvement of suffnec.Rd.
+
+2010-03-18
+	* minor bugfix of constrReduce: update component of primeImplicants in the returned object.
+
+2010-03-17
+	* update examples section in CoD.Rd.
+
+2009-12-29
+	* update CoD data set.
+
+2009-11-04
+	* add doc of coverage.
+
+2009-10-20
+	* change "neccessary condition" to "common configuration" to avoid confusion (Thanks Carsten Schneider).
+	* export simplifyingAssumption.
+
+2009-10-16
+	* improve doc of cs_truthTable
+	* eliminate missing data automatically in cs_truthTable and fs_truthTable.
+	* when nlevels is mismatched, throw a warning and use possible value instead of stop.
+
+2009-10-13
+	* new function of bestSubsets(), changed to findNoCSA().
+	* change version number to 0.1-3 (0.1-2 is a bugfix version for R-2.10-0).
+
+2009-10-09
+	* use gtools:::combinations instead of combn in solvePIChart can speed it up by 15%.
+	* use esubSet in reduce.default, and rename original reduce.default to reduceOld for calibration purpose.
+	* minor change of esubSet to handle implicant without NAs.
+	* new function necessaryIndex.
+
+2009-10-08
+	* fix bugs of esubSet(): correctly handle MV. need more tests.
+
+2009-10-07
+	* reduce.default(): set dim to NULL rather than use as.vector to speed it up.
+	* new function esubSet(), intended to superpose subSet(). It is much faster, but need more tests (seems ok for all 2-levels).
+
+2009-10-06
+	* new function of consistency and coverage and overlap.
+
+2009-10-06
+	* improve superSet, faster when implicant has NAs.
+
+2009-10-01
+	* fix bugs in *.Rd files.
+
+2009-01-17
+	* check value of nlevels argument in cs_truthTable and reduce.default
+
+2009-01-16
+	* reduce is generic function now.

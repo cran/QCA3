@@ -1,19 +1,21 @@
 \name{cs_truthTable}
 \alias{cs_truthTable}
-\alias{mv_truthTable}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{Construct a truthTable for csQCA or mvQCA}
+\alias{csTQCA_truthTable}
+\title{Construct a truthTable for csQCA}
 \description{
-  Construct a truthTable for csQCA and mvQCA. Both deterministic and
+  Construct a truthTable for csQCA. Both deterministic and
   probabilistic methods of determining configurations of positive,
   negative and contraditory outcome are implemented.
+  
+  This function can be used for crip set TQCA as well. See
+  \code{\link{CarenPanofsky}} for example. It needs manual construction
+  of indicator conditions of temporal order.
 }
 \usage{
-cs_truthTable(mydata, outcome, conditions,
-              method = c("deterministic","probabilistic"),
-              complete = FALSE, weight = NULL, show.cases = TRUE,
-              cases = NULL, nlevels = rep(2, length(conditions)),
-              cutoff1 = 1, cutoff0 = 1, benchmark = 0.65, conf.level = 0.95)
+cs_truthTable(mydata, outcome, conditions,method = c("deterministic", 
+    "probabilistic"), weight = NULL, show.cases = TRUE, cases = NULL, 
+    cutoff1 = 1, cutoff0 = 1, benchmark = 0.65, conf.level = 0.95, 
+    missing = c("missing", "dontcare", "positive", "negative")) 
 }
 \arguments{
   \item{mydata}{data frame of the raw data.}
@@ -21,26 +23,28 @@ cs_truthTable(mydata, outcome, conditions,
   \item{conditions}{character vector, the name of the conditions from mydata.}
   \item{method}{character, specifying the method of determining the
     outcome of a configuration.}
-  \item{complete}{logical, when it is TRUE the result includes
-    configurations without empirical cases.}
   \item{weight}{character, name of a variable specifying the weights.}
   \item{show.cases}{logical, when TRUE the result shows case names.}
   \item{cases}{character, variable specifying the case names. When it is
-  NUll, then use row names of mydata as case names.}
-  \item{nlevels}{a integer vector, specifying the number of levels of
-    each conditions.}
+    NUll, then use row names of mydata as case names.}
   \item{cutoff1}{length one numeric vector.}
   \item{cutoff0}{length one numeric vector. }
   \item{benchmark}{Benchmark for statistical test. Must equal or greater
     than 0.5.}
   \item{conf.level}{confident level of statistical test.}
+  \item{missing}{method to handle missing data.}
 }
 \details{
+  The value of all the conditions should start from 0. In
+  cript set QCA, it is always be 0 or 1. Value -9 in conditions means "don't care"
+  (though "don't care" in outcome is denoted by "-9").
+  
   Symbols of the outcome. '1' is postive configuration, '0' is negative
-  configuration, 'C' is contraditory configuration, and '-' is don't
-  care configuration. When show.case is TRUE and a configuration is 'C',
-  then the name of case with negative outcome is highlighted by [].
-
+  configuration, 'C' is contraditory configuration, "?" is unobserved
+  configuration and '-9' is don't care configuration. When show.case is
+  TRUE and a configuration is 'C', then the name of case with negative
+  outcome is highlighted by [].
+  
   'cutoff1' and 'cutoff0' are only meaningful for'deterministic'
   method. They represent cutting point of positive case and negative
   case. When a configuration has positive case only and the number of
@@ -71,22 +75,26 @@ cs_truthTable(mydata, outcome, conditions,
   proportion fits the criterion, then it is don't care
   configuration. There is no contraditory congfiguration in this method,
   as it is designed to handle with contraditory configurations.
+
+  rownames of a truthTable is grouping index (not important for end-users).
 }
 \value{
-A truthTable.
+  An object of class "truthTable" and "cs_trutbTable". A list with 5
+  components:
+  \item{truthTable}{a data frame presenting a truthTable.}
+  \item{outcome}{The name of outcome variable. length-1 character.}
+  \item{conditions}{conditions. A character vector.}
+  \item{nlevels}{integer vector specifying number of levels of each condition.}
+  \item{call}{the matched call.}
 }
 \references{
   Ragin, Charles. 2000. Fuzzy-Set Social Science. Pp109-116. University Of Chicago Press.
 }
 \author{Ronggui HUANG}
-\seealso{\code{\link{fs_truthTable}} \code{\link{reduce}}}
+\seealso{\code{\link{fs_truthTable}},  \code{\link{mv_truthTable}} and \code{\link{reduce}}}
 \examples{
 ## truthTable for csQCA
 cs_truthTable(Lipset_cs,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
   "INDLAB", "GOVSTAB"),case="CASEID")
-
-## truthTable for mvQCA, please note the nlevels argument.
-cs_truthTable(Lipset_mv,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
-  "INDLAB"),case="CASEID",nlevels=c(3,2,2,2))
 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+

@@ -1,3 +1,5 @@
+## implementation of inclusion algorithm for fuzzy set QCA.
+
 suffnec.test <- function(data,outcome,conditions,type=c("suff","nec"),
                          benchmark=0.65,conf.level=0.95,...)
 {

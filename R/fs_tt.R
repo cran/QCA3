@@ -51,6 +51,3 @@ fs_tt <- function(mydata, outcome = "", conditions = c(""),ncases_cutoff=1,consi
   class(tt) <-"tt"
   tt
 }
-
-
-
