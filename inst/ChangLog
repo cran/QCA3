@@ -1,4 +1,35 @@
-2010-05-21
+2011-09-20 (as 0.0-4)
+	* document fsnot function.
+	* remove fs_tt (no longer needed)
+
+2011-06-17
+	* sort method for fs_fstruthTable
+
+2011-05-27
+	* minor bugfix.
+
+2011-01-01
+	* new function of fsplot.
+
+2010-12-04
+	* add example of intermediate solution, extractor of prime implications
+
+2010-12-02
+	* new function of indirectCalibration.
+
+2010-11-21
+	* add functions for tsQCA (and related dataset)
+
+2010-11-13
+	* new data set of Hino2009
+
+2010-05-28
+	* check the reserved keywords when construct a truthTable
+
+2010-05-24
+	* improve coverage.rd.
+
+2010-05-21 (released as 0.0-3 rev 108)
 	* plot.QCA
 	* add tests
 	* exported findNoCSA

@@ -37,6 +37,8 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
   assessments (the \code{ncases_cutoff} argument), and assessing the
   consistency of fuzzy-set subset relations (the \code{consistency_cutoff}
   argument), we can finally construct a truthTable.
+
+  There is a sort method for the returned object.
 }
 \value{
   An object of class "truthTable" and "fs_truthTable".
@@ -52,5 +54,5 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
 \seealso{\code{\link{reduce}}, \code{\link{cs_truthTable}} and  \code{\link{fs_truthTable}}}
 \examples{
 fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
-"Stable.FZ"),cases="Country",consistency_cutoff=0.7)   
+"Stable.FZ"),cases="Country",consistency_cutoff=0.7)
 }

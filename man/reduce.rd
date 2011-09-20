@@ -82,7 +82,7 @@ reduce(x,...)
 
   Since version 0.0-3, reduce uses enhanced internal function ereduce1
   (which uses enhanced internal function esubset). It has been tested
-  and yields the same result (see tests directly for details).
+  and yields the same result (see tests directory for details).
 }
 \value{
   An object of class "QCA". It is essentailly a list of 10 components.
@@ -153,26 +153,27 @@ reduce(x,...)
   \code{\link{constrReduce}}
 }
 \examples{
-\dontrun{
+if (require(QCA)){
 data(Osa,package="QCA")
 ## QCA package is required to run this example
+Osa$OUT2 <- Osa$OUT ## OUT is reserved word in QCA3
 ## the same as examples of QCA:::qmcc
 conditions <- c("DYNA","ACCES","INFLU","ELITE","SOCIAL")
-reduce(Osa,"OUT",conditions,explain="positive",remaind="exclude")
-reduce(Osa,"OUT",conditions,explain="positive",contradictions="positive",remaind="include")
+reduce(Osa,"OUT2",conditions,explain="positive",remaind="exclude")
+reduce(Osa,"OUT2",conditions,explain="positive",contradictions="positive",remaind="include")
 ans <-
-  reduce(Osa,"OUT",conditions,explain="positive",contradictions="negative",remaind="include")
+  reduce(Osa,"OUT2",conditions,explain="positive",contradictions="negative",remaind="include")
 simplifyingAssumption(ans) ## or SA(ans)
-reduce(Osa,"OUT",conditions,explain="negative",contradictions="negative",remaind="include")
+reduce(Osa,"OUT2",conditions,explain="negative",contradictions="negative",remaind="include")
 
 ## Results of Osa and Corduneanu-Huci (2003)
-reduce(Osa,"OUT",conditions,explain="pos",contrad="neg",remaind="exclude")
+reduce(Osa,"OUT2",conditions,explain="pos",contrad="neg",remaind="exclude")
 # table 1 in page 617
-reduce(Osa,"OUT",conditions,explain="neg",contrad="pos",remaind="exclude")
+reduce(Osa,"OUT2",conditions,explain="neg",contrad="pos",remaind="exclude")
 # table 2 of page 621
-reduce(Osa,"OUT",conditions,explain="positive",contradictions="pos",remaind="incl")
+reduce(Osa,"OUT2",conditions,explain="positive",contradictions="pos",remaind="incl")
 # maximum reduction in page 623
-reduce(Osa,"OUT",conditions[1:4],explain="pos",contradictions="neg",remaind="excl")
+reduce(Osa,"OUT2",conditions[1:4],explain="pos",contradictions="neg",remaind="excl")
 # Appendix 2 in page 629
 }
 

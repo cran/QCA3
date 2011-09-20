@@ -7,9 +7,7 @@
 Coverage and consistency.
 }
 \description{
-  Given two fuzzy set score variables x and y, coverage returns the coverage
-  of x by y, given their relationship; and consistency returns  the
-  consistency of x by y.
+  Coverage and consistency.
 }
 \usage{
 
@@ -36,6 +34,10 @@ consistency(x, y, alternative = c("less", "greater"))
   \item{\ldots}{not used currently.}
 }
 \details{
+  Given two fuzzy set score variables x and y, coverage returns the coverage
+  of x by y, given their relationship; and consistency returns  the
+  consistency of x by y.
+  
   When alternative is "less", it returns coverage(x<=y). This is
   coverage for sufficent test. When "greater", it returns
   coverage(x>=y), it is coverage for necessary condition.

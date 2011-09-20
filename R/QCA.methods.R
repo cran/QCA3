@@ -1,3 +1,6 @@
+## this is part of the QCA3 project
+## by Ronggui Huang 2009-2010
+
 excludeCSA <- function(object,csa){
   call <- match.call()
   nlevels <- object$nlevels
@@ -29,4 +32,14 @@ excludeCSA <- function(object,csa){
               nlevels = nlevels, PIChart = PIChart,call=call)
   class(ans) <- c("QCA","noCSA")
   ans
+}
+
+primeImplicants <- function(object,traditional=TRUE){
+    ## extract the prime implicants and print it in a pretty way
+    nlevels <- object$nlevels
+    var_names <- names(object$primeImplicants)
+    PIs <- apply(object$primeImplicants, 1, QCA3:::toString, traditional = traditional,
+                 nlevels = nlevels, name = var_names)
+    PI <- paste(PIs, collapse = " + ")
+    writeLines(strwrap(PI))
 }

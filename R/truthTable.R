@@ -22,6 +22,9 @@ cs_truthTable <- function(mydata, outcome, conditions,
     ## outcome and conditions are character vectors.
     nlevels = rep(2,length(conditions))
     if (outcome==""||conditions =="") stop("You must specific outcome and conditions first.")
+    if (length(conditions)<2) stop("The number of conditions must greater than 1.")
+    reserved <- c("NCase","freq1","freq0","OUT","Cases")
+    if (any(outcome %in% reserved)) stop("Some names of condition are reserved for truthTable.")
     mydata <- mydata[,c(outcome,conditions,weight,cases)]
     missing <- match.arg(missing)
     if (missing=="missing")  mydata <- na.exclude(mydata) # eliminate missing data
@@ -137,6 +140,9 @@ mv_truthTable <- function(mydata, outcome, conditions,
     ## outcome and conditions are character vectors.
     nlevels <- sapply(mydata[,conditions], function(x) max(x,na.rm = T)+1)
     if (outcome==""||conditions =="") stop("You must specific outcome and conditions first.")
+    if (length(conditions)<2) stop("The number of conditions must greater than 1.")
+    reserved <- c("NCase","freq1","freq0","OUT","Cases")
+    if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
     mydata <- mydata[,c(outcome,conditions,weight,cases)]
     missing <- match.arg(missing)
     if (missing=="missing")  mydata <- na.exclude(mydata) # eliminate missing data
@@ -234,6 +240,9 @@ fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistenc
     if (consistency_cutoff>1 || consistency_cutoff<0) stop("consistency_cutoff should be in [0,1].")
     if (consistency_cutoff<0.75) warning("It is suggested that consistency_cutoff be >= 0.75.")
     if (outcome==""||conditions=="") stop("You must specific outcome and conditions first.")
+    if (length(conditions)<2) stop("The number of conditions must greater than 1.")
+    reserved <- c("NCase","freq1","freq0","OUT","Cases")
+    if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
     mydata <- mydata[,c(outcome,conditions,cases)]
     mydata <- na.exclude(mydata) # eliminate missing data
     fulldata <- mydata[,c(outcome,conditions)]
@@ -281,4 +290,9 @@ fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistenc
 print.truthTable <- function(x,...){
     x <- unclass(x)
     print(x$truthTable)
+}
+
+sort.fs_truthTable <- function (x, decreasing = FALSE, ...) {
+    x$truthTable <- x$truthTable[order(x$truthTable$Consistency,decreasing=decreasing),]
+    x
 }

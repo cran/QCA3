@@ -4,6 +4,8 @@
 
 * plot method for QCA object with aids from Vennerable packages.
 
-* Can use gtools to improve speed of solvePIChart(), but not use it until necessary.
+* Can use gtools to improve speed of solvePIChart(), but not use it until necessary. The other option is to use commbinations in omegathat or use Rcpp to use C++ code instead of R code.
 
 * handle necessary conditions.
+
+* examine the logical relation between the derived variable and original variables (for TQCA).
