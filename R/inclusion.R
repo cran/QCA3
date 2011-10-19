@@ -1,3 +1,6 @@
+## This file (R/truthTable.R) is part of QCA3 package
+## copyright: HUANG Ronggui 2008-2012
+
 ## implementation of inclusion algorithm for fuzzy set QCA.
 
 suffnec.test <- function(data,outcome,conditions,type=c("suff","nec"),

@@ -9,3 +9,9 @@
 * handle necessary conditions.
 
 * examine the logical relation between the derived variable and original variables (for TQCA).
+
+* consistency for ~Y in fs_truthTable()
+
+* bool calc
+
+* how to handle "don't care" condition- 1) Get the realised value for such condition before construct the PIChart; 2) simply treat the don't care value whatever is easy for the PIChart to get a TRURE?

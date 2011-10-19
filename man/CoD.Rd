@@ -61,6 +61,11 @@ round(apply(CoD[,c("econdev","ethlihom","nocom")],2,FUN=function(x) coverage(x,C
 round(consistency(apply(CoD[,c("econdev","ethlihom","nocom")],1,max),CoD$cod),3)
 round(coverage(apply(CoD[,c("econdev","ethlihom","nocom")],1,max),CoD$cod),3)
 
+## table 6.4 in page 82
+fs=fs_truthTable(CoD,'cod',c('econdev','eduhi','ethlihom','close','demex','nocom'),case='label')
+fs <- sort(fs,,"Consistency")
+tb6.4 <- reduce(fs,remainder='include')
+
 ## table 6.6 in page 86
 reduce(CoD,'cod',c('parlia','efpahi','decent'),'positive','include',case='label',pre='fs_truthTable')
 reduce(CoD,'cod',c('econdev','ethlihom','nocom','parlia','efpahi','decent'),'positive','include',case='label',pre='fs_truthTable')

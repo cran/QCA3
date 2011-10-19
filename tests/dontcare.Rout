@@ -1,0 +1,64 @@
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: i386-pc-mingw32/i386 (32-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(QCA3)
+> data(CarenPanofsky)
+> tqca.tt <- cs_truthTable(CarenPanofsky,'recognition',names(CarenPanofsky)[1:5])
+> tqca.ans <- reduce(tqca.tt) 
+> QCA3:::prettyPI(tqca.ans)
+[[1]]
+[[1]]$PI
+[1] "PUBLIC*ELITE*STRIKE + ELITE*AFFILIATE*STRIKE*e_before_a + PUBLIC*ELITE*AFFILIATE*E_BEFORE_A"
+
+[[1]]$N
+[1] 3
+
+
+> 
+> data(McCammonVanDyke)
+> workdat <- McCammonVanDyke
+> workdat[workdat==-9] <- 0
+> fig13.2 <- reduce(workdat,"coalition",c("ideology","threats","opportunity","ties","resources"))
+> QCA3:::prettyPI(fig13.2)
+[[1]]
+[[1]]$PI
+[1] "IDEOLOGY*threats*opportunity + ideology*THREATS*opportunity*ties + IDEOLOGY*THREATS*OPPORTUNITY*ties + THREATS*opportunity*TIES*resources + IDEOLOGY*RESOURCES + THREATS*OPPORTUNITY*TIES*RESOURCES"
+
+[[1]]$N
+[1] 6
+
+
+> ## result in figure 13.2
+>      
+> workdat <- McCammonVanDyke
+> idx <- apply(workdat, 1, function(x) any(x==-9))
+> ans <- reduce(workdat[!idx,],"coalition",c("ideology","threats","opportunity","ties","resources"))
+> fig13.3 <- constrReduce(ans,include=workdat[idx,1:5])
+> QCA3:::prettyPI(fig13.3)
+[[1]]
+[[1]]$PI
+[1] "IDEOLOGY + THREATS"
+
+[[1]]$N
+[1] 2
+
+
+> 
+> proc.time()
+   user  system elapsed 
+   0.79    0.09    0.90 

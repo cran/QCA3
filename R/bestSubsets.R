@@ -1,3 +1,6 @@
+## This file (R/truthTable.R) is part of QCA3 package
+## copyright: HUANG Ronggui 2008-2011
+
 findNoCSA <- function(x,y, noCSA=TRUE){
     nx <- length(x$solutions)
     ny <- length(y$solutions)

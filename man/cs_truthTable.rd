@@ -1,5 +1,6 @@
 \name{cs_truthTable}
 \alias{cs_truthTable}
+\alias{sort.cs_truthTable}
 \alias{csTQCA_truthTable}
 \title{Construct a truthTable for csQCA}
 \description{
@@ -13,7 +14,7 @@
 }
 \usage{
 cs_truthTable(mydata, outcome, conditions,method = c("deterministic", 
-    "probabilistic"), weight = NULL, show.cases = TRUE, cases = NULL, 
+    "probabilistic", "mixed"), weight = NULL, complete=FALSE, show.cases = TRUE, cases = NULL, 
     cutoff1 = 1, cutoff0 = 1, benchmark = 0.65, conf.level = 0.95, 
     missing = c("missing", "dontcare", "positive", "negative")) 
 }
@@ -24,6 +25,8 @@ cs_truthTable(mydata, outcome, conditions,method = c("deterministic",
   \item{method}{character, specifying the method of determining the
     outcome of a configuration.}
   \item{weight}{character, name of a variable specifying the weights.}
+  \item{complete}{logical, when it is TRUE the result includes
+    configurations without empirical cases.}
   \item{show.cases}{logical, when TRUE the result shows case names.}
   \item{cases}{character, variable specifying the case names. When it is
     NUll, then use row names of mydata as case names.}
@@ -62,10 +65,10 @@ cs_truthTable(mydata, outcome, conditions,method = c("deterministic",
 
   The caculation of cutting point: if it is equal or greater than 1, the
   cutting point is the value of cutoff1 and cutoff0. If it is between 0
-  and 1, then the cutting point is the cutoff1/cutoff0 multiplied by the
+  and 1, then the cutting point is the cutoff1 or cutoff0 multiplied by the
   total number of case.
 
-  'benchmark' and 'conf.level' are only meaningful for 'probabilistic'
+  'benchmark' and 'conf.level' are only meaningful for 'probabilistic' and "mixed"
   method. When the method is 'probabilistic', a statistical test will
   conducted to test if the proportion of case for a configuration is
   greater then a benchmark. If the proportion of cases with outcome '1' is
@@ -76,10 +79,22 @@ cs_truthTable(mydata, outcome, conditions,method = c("deterministic",
   configuration. There is no contraditory congfiguration in this method,
   as it is designed to handle with contraditory configurations.
 
-  rownames of a truthTable is grouping index (not important for end-users).
+  For method of 'mixed', a statistical test will conducted only for
+  contradictory configurations to test if the proportion of case for a
+  configuration is greater then a benchmark. If the proportion of cases
+  with outcome '1'is greater than benchmark, then the it is a
+  configuratin with outcome '1'. If the proportion of case with outcome
+  '0' is greater than benchmark, then the configuration with outcome of
+  '0'. If neither proportion fits the criterion, then it is don't care
+  configuration. There is no contraditory congfiguration in this method.
+
+  rownames of a truthTable is grouping index (not important for
+  end-users).
+
+  There is a sort method method for the truthTable object.
 }
 \value{
-  An object of class "truthTable" and "cs_trutbTable". A list with 5
+  An object of class "cs_trutbTable" and "truthTable". A list with 5
   components:
   \item{truthTable}{a data frame presenting a truthTable.}
   \item{outcome}{The name of outcome variable. length-1 character.}
@@ -96,5 +111,10 @@ cs_truthTable(mydata, outcome, conditions,method = c("deterministic",
 ## truthTable for csQCA
 cs_truthTable(Lipset_cs,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
   "INDLAB", "GOVSTAB"),case="CASEID")
+
+cst <- cs_truthTable(Lipset_cs,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
+  "INDLAB", "GOVSTAB"),case="CASEID",complete=TRUE)
+
+sort(cst)
 }
 

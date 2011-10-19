@@ -21,22 +21,25 @@ reduce(x,...)
        remainders = c("exclude","include"),
        contradictions = c("remainders","positive","negative"),
        dontcare = c("remainders", "positive", "negative"),
+       cdontcare=c("remainders","positive","negative"),
        keepTruthTable = TRUE,...)
 
 \method{reduce}{data.frame}(x, outcome, conditions,
-        explain = c("positive", "negative"), 
+        explain = c("positive", "negative"),
         remainders = c("exclude", "include"),
         contradictions = c("remainders", "positive", "negative"),
         dontcare = c("remainders", "positive", "negative"),
+        cdontcare=c("remainders","positive","negative"),
         preprocess = c("cs_truthTable", "fs_truthTable",
-        "mv_truthTable"), 
+        "mv_truthTable"),
        keepTruthTable = TRUE, ...)
 
 \method{reduce}{formula}(x, data, explain = c("positive", "negative"),
       remainders = c("exclude", "include"),
       contradictions = c("remainders", "positive", "negative"),
-      dontcare = c("remainders", "positive", "negative"), 
-      preprocess = c("cs_truthTable", "fs_truthTable", "mv_truthTable"), 
+      dontcare = c("remainders", "positive", "negative"),
+      cdontcare=c("remainders","positive","negative"),
+      preprocess = c("cs_truthTable", "fs_truthTable", "mv_truthTable"),
       keepTruthTable = TRUE, ...)
 }
 \arguments{
@@ -47,12 +50,14 @@ reduce(x,...)
   \item{explain}{a character string specifying the cases to be
     explained. Must one of "positive" or "negative".}
   \item{remainders}{a character string specifying how to deal with
-    remainders. Must one of "exclude" or "include".}
+    outcome remainders. Must one of "exclude" or "include".}
   \item{contradictions}{a character string specifying how to deal with
     contraditory configurations. Must one of "remainders","positive" or
     "negative"}
-  \item{dontcare}{a character string specifying how to deal with
-    dontcare cases. Must one of "remainders", "positive", "negative"}
+  \item{dontcare}{a character string specifying how to deal with cases of
+    dontcare outcome. Must one of "remainders", "positive", "negative"}
+  \item{cdontcare}{a character string specifying how to deal with cases of
+    dontcare conditions. Must one of "remainders", "positive", "negative"}
   \item{preprocess}{a character string specifying the function for
     preprocessing data, which turns raw data to a truthTable. Must one
     of \code{cs_truthTable}, \code{fs_truthTable} or \code{mv_truthTable}.}
@@ -80,9 +85,6 @@ reduce(x,...)
   It is good practices to generate and examine a truthTable, then use
   truthTable method of reduce to do the boolean minimization.
 
-  Since version 0.0-3, reduce uses enhanced internal function ereduce1
-  (which uses enhanced internal function esubset). It has been tested
-  and yields the same result (see tests directory for details).
 }
 \value{
   An object of class "QCA". It is essentailly a list of 10 components.
@@ -94,10 +96,13 @@ reduce(x,...)
   solution. The number of the matrix is row index of primeImplicants.}
   \item{primeImplicants}{A matrix of prime implicants.}
   \item{truthTable}{a truthTable if keepTruthTable is TRUE, otherwise NULL.}
-  \item{explained}{A data frame, representing the configuration of conditions for explained cases. Note it is not on basis of case but basis of configuration.}
+  \item{explained}{A data frame, representing the configuration of
+  conditions for explained cases. Note it is not on basis of case but
+  basis of configuration.}
+  \item{outcome}{outcome name.}
   \item{idExclude}{integer vector. id of observed configurations that are
   excluded from minimization. The meaning of id is equivalent to the
-  line number of a configuration discussed in Dusa (2007).} 
+  line number of a configuration discussed in Dusa (2007).}
   \item{nlevels}{a integer vector, the number of levels of each condition.}
   \item{PIChart}{a prime implicants charts, constructed according to
   primeImplicants and explained. It is a logic matrix with dimension of
@@ -147,36 +152,16 @@ reduce(x,...)
   uses proximately 500 to 600 Mb memory in typical QCA study. I emphasis
   "typical" because the exact scenario also depends on the number of
   observed configurations.
+
+  Since version 0.0-3, reduce uses enhanced internal function ereduce1
+  (which uses enhanced internal function esubset). It has been tested
+  and yields the same result (see tests directory for details).
 }
 \seealso{
 \code{\link[QCA]{factorize}}, \code{\link{SA}}, \code{\link{CSA}},
   \code{\link{constrReduce}}
 }
 \examples{
-if (require(QCA)){
-data(Osa,package="QCA")
-## QCA package is required to run this example
-Osa$OUT2 <- Osa$OUT ## OUT is reserved word in QCA3
-## the same as examples of QCA:::qmcc
-conditions <- c("DYNA","ACCES","INFLU","ELITE","SOCIAL")
-reduce(Osa,"OUT2",conditions,explain="positive",remaind="exclude")
-reduce(Osa,"OUT2",conditions,explain="positive",contradictions="positive",remaind="include")
-ans <-
-  reduce(Osa,"OUT2",conditions,explain="positive",contradictions="negative",remaind="include")
-simplifyingAssumption(ans) ## or SA(ans)
-reduce(Osa,"OUT2",conditions,explain="negative",contradictions="negative",remaind="include")
-
-## Results of Osa and Corduneanu-Huci (2003)
-reduce(Osa,"OUT2",conditions,explain="pos",contrad="neg",remaind="exclude")
-# table 1 in page 617
-reduce(Osa,"OUT2",conditions,explain="neg",contrad="pos",remaind="exclude")
-# table 2 of page 621
-reduce(Osa,"OUT2",conditions,explain="positive",contradictions="pos",remaind="incl")
-# maximum reduction in page 623
-reduce(Osa,"OUT2",conditions[1:4],explain="pos",contradictions="neg",remaind="excl")
-# Appendix 2 in page 629
-}
-
 ## csQCA, mvQCA and fsQCA examples from "Configuraional comparative Methods"
 ## csQCA
 conditions <- c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB", "GOVSTAB")

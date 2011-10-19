@@ -1,13 +1,15 @@
-export(directCalibration,
-       constrReduce,coincid,consistency, coverage, CSA, cs_truthTable,
+export(boolIntersect, directCalibration,
+       constrReduce,coincid,consistency, consistGap, coverage, CSA, cs_truthTable,
        excludeCSA,
-       findNoCSA, fs_truthTable, fsnot, fsplot,
-       mv_truthTable, #primeImplicants,
-       reduce, SA, simplifyingAssumption, suffnec,
+       findNoCSA, fs_truthTable, fsnot, fsplot,implicantsToDF,
+       mv_truthTable,
+       reduce, remainderReduce,
+       SA, simplifyingAssumption, suffnec, setOUT,
        thresholdssetter)
 S3method(coverage, QCA)
 S3method(coverage, default)
-#S3method(drop1, truthTable)
+S3method(consistency, QCA)
+S3method(consistency, default)
 S3method(print, coincid)
 S3method(print, QCA)
 S3method(plot, QCA)
@@ -19,6 +21,7 @@ S3method(reduce, default)
 S3method(reduce, formula)
 S3method(reduce, truthTable)
 S3method(sort, fs_truthTable)
+S3method(sort, truthTable)
 S3method(summary, QCA)
 S3method('[',QCA)
 S3method(update,QCA)

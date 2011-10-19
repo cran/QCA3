@@ -217,7 +217,8 @@ reduceByOne <- function(IDs,nlevels){
 
 
 reduce2 <- function(IDs,nlevels){
-
+    ## IDs MUST be that of commbination?
+    ## otherwise, use subCommbination to discover them first.?
   reduced <- function(IDs,nlevels){
     ## helper function
     index=reduceByOne(IDs,nlevels=nlevels)
@@ -258,6 +259,7 @@ reduce2 <- function(IDs,nlevels){
 
 PIChart <- function(primeImplicants,explained=NULL){
     ## primeImplicants with attr of "explained" if explained is NULL
+    ## rows are primeimplicants and columns are original combinations
     if (is.null(explained)){
         explained <- attr(primeImplicants,"explained")
     }
@@ -267,8 +269,11 @@ PIChart <- function(primeImplicants,explained=NULL){
     for (i in seq_len(nr)){
         for (j in seq_len(nc)){
             ## idx <- !is.na(primeImplicants[i,])
-            idx <- !is.dontcare(primeImplicants[i,])
-            ans[i,j] <- isTRUE(all.equal(primeImplicants[i,][idx],explained[j,][idx]))
+            if (FALSE) { ## comment out the old method
+                idx <- !is.dontcare(primeImplicants[i,])
+                ans[i,j] <- isTRUE(all.equal(primeImplicants[i,][idx],explained[j,][idx]))
+            }
+            ans[i,j] <- isSuperSet(primeImplicants[i,], explained[j,])
         }
     }
     ans
@@ -316,6 +321,7 @@ reduce.truthTable <- function(x,
                               remainders=c("exclude","include"),
                               contradictions=c("remainders","positive","negative"),
                               dontcare=c("remainders","positive","negative"),
+                              cdontcare=c("remainders","positive","negative"),
                               keepTruthTable=TRUE,...)
 {
     call <- match.call()
@@ -327,7 +333,8 @@ reduce.truthTable <- function(x,
     explain <- match.arg(explain)
     remainders <- match.arg(remainders)
     contradictions <- match.arg(contradictions)
-    dontcare <- match.arg(dontcare)
+    dontcare <- match.arg(dontcare) ## dontcare in outcome
+    conddontcare <- match.arg(cdontcare) ## dontcare in condition
     if (keepTruthTable) {
         truthTable <- mydata[mydata[["OUT"]]!="?",] ## subset(mydata,OUT!="?")
         ## to avoid unbined global variable of OUT, do not use subset(mydata, OUT...)
@@ -349,6 +356,7 @@ reduce.truthTable <- function(x,
       idExclude <- apply(dat1,1,implicant2Id,nlevels=nlevels)
     }
     if (nrow(explained)==0) stop("No configuration is associated with the explained outcome.")
+
     if (remainders=="include"){
         ## if necessary conditons -> add some remainders to dat0
         superSets1 <- apply(dat1, 1, superSet,nlevels=nlevels)
@@ -362,10 +370,27 @@ reduce.truthTable <- function(x,
         if (explain=="negative") primesId <- setdiff(superSets0,superSets1)
         primesId <- ereduce1(primesId,nlevels=nlevels)
     } else if (remainders=="exclude") {
-        if (explain=="positive") primesId <- apply(dat1,1,implicant2Id,nlevels=nlevels)
-        if (explain=="negative") primesId <- apply(dat0,1,implicant2Id,nlevels=nlevels)
+        if (conddontcare=="remainders") { ## added on 30/3/2012
+            ## how to handle dontcare in conditions?
+            dontcare.idx <- apply(explained, 1, function(x) any(is.dontcare(x)))
+            dontcare.case <- explained[dontcare.idx,]
+            primesIdP <- apply(explained[!dontcare.idx,], 1, implicant2Id, nlevels=nlevels)
+            ## explained of processed cases
+            dontcare.IDs <- apply(dontcare.case,1,subCombination,nlevels=nlevels)
+            dontcare.IDs <- unique(unlist(dontcare.IDs))
+            primesId <- unique(union(primesIdP,dontcare.IDs))
+        } else if (conddontcare=="positive"){
+            dat1 <- explained
+            dat1[is.dontcare(explained)] <- 1
+            primesId <- apply(dat1, 1, implicant2Id, nlevels = nlevels)
+        } else if (conddontcare=="negative"){
+            dat0 <- explained
+            dat0[is.dontcare(explained)] <- 0
+            primesId <- apply(dat0, 1, implicant2Id, nlevels = nlevels)
+        }
         primesId <- reduce2(primesId,nlevels=nlevels)
     }
+
     primeImplicants <- id2Implicant(primesId ,nlevels=nlevels,names=conditions)
     PIChart <- PIChart(primeImplicants,explained)
     sl <- solvePIChart(PIChart)
@@ -373,7 +398,7 @@ reduce.truthTable <- function(x,
     commonSolutions <- apply(sl,1,function(idx) {if (length(id <- unique(idx))==1) id })
     ans <- list(solutions=solutions,commonSolutions=commonSolutions,
                 solutionsIDX=sl,primeImplicants=primeImplicants,
-                truthTable=truthTable,explained=explained,
+                truthTable=truthTable,explained=explained,outcome=x$outcome,
                 idExclude=idExclude,nlevels=nlevels,
                 PIChart=PIChart, call=call)
     class(ans) <- c("QCA")
@@ -385,6 +410,7 @@ reduce.formula <- function(x, data,
                            remainders=c("exclude","include"),
                            contradictions=c("remainders","positive","negative"),
                            dontcare=c("remainders","positive","negative"),
+                           cdontcare=c("remainders","positive","negative"),
                            preprocess=c("cs_truthTable","fs_truthTable","mv_truthTable"),
                            keepTruthTable=TRUE,...
                            )
@@ -404,11 +430,12 @@ reduce.formula <- function(x, data,
     remainders <- match.arg(remainders)
     contradictions <- match.arg(contradictions)
     dontcare <- match.arg(dontcare)
+    conddontcare <- match.arg(cdontcare) ## dontcare in condition
     preprocess <- match.arg(preprocess)
     dots <- list(...)
     x <- do.call(preprocess,c(list(mydata=data, outcome=outcome,conditions=conditions),dots))
     ans <- do.call(reduce.truthTable,list(x=x,explain=explain,remainders=remainders,
-                                          contradictions=contradictions,dontcare=dontcare,
+                                          contradictions=contradictions,dontcare=dontcare,cdontcare=cdontcare,
                                           keepTruthTable=keepTruthTable,dots))
     ans$call <- call
     ans
@@ -420,6 +447,7 @@ reduce.data.frame <- function(x, outcome, conditions,
                               remainders=c("exclude","include"),
                               contradictions=c("remainders","positive","negative"),
                               dontcare=c("remainders","positive","negative"),
+                              cdontcare=c("remainders","positive","negative"),
                               preprocess=c("cs_truthTable","fs_truthTable","mv_truthTable"),
                               keepTruthTable=TRUE,
                               ...)
@@ -430,11 +458,12 @@ reduce.data.frame <- function(x, outcome, conditions,
     remainders <- match.arg(remainders)
     contradictions <- match.arg(contradictions)
     dontcare <- match.arg(dontcare)
+    conddontcare <- match.arg(cdontcare) ## dontcare in condition
     preprocess <- match.arg(preprocess)
     dots <- list(...)
     x <- do.call(preprocess,c(list(mydata=x, outcome=outcome,conditions=conditions),dots))
     ans <- do.call(reduce.truthTable,list(x=x,explain=explain,remainders=remainders,
-                                          contradictions=contradictions,dontcare=dontcare,
+                                          contradictions=contradictions,dontcare=dontcare,cdontcare=cdontcare,
                                           keepTruthTable=keepTruthTable,dots))
     ans$call <- call
     ans
@@ -557,6 +586,7 @@ print.QCA <- function(x,traditional=TRUE,show.truthTable=TRUE,...){
         cat(sprintf("truthTable with %i configuration(s)\n\n",nrow(truthTable)))
         print(truthTable)
     }
+    cat(sprintf("\n----------------\nExplaining %i configuration(s)\n",nrow(x$explained)))
     for (i in seq_len(length(PIs))) {
         cat("\n----------------\n")
         cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
@@ -606,7 +636,7 @@ summary.QCA <- function(object,traditional=TRUE,show.case=TRUE,...){
         res
     })
     ans <- list(N=N_total,N1=N_positive,N0=N_negative,Ndup=as.numeric(cases["Ndup",]),
-                coverage=coverage,prop=prop,PIs=PIs,call=object$call,cases=cases["PI",])
+                Ncoverage=coverage,prop.total=prop,PIs=PIs,call=object$call,cases=cases["PI",])
     class(ans) <- "summary.QCA"
     ans
 }
@@ -620,21 +650,28 @@ print.summary.QCA <- function(x,digits=3,traditional=FALSE,...){
     cat(sprintf("Total number of cases: %i\n",x$N))
     cat(sprintf("Number of cases [1]: %i\n",x$N1))
     cat(sprintf("Number of cases [0]: %i\n",x$N0))
+    if (x$call$explain=="positive" || is.null(x$call$explain)) {
+      cat("Explaining [1]\n")
+      Nexplained <- x$N1
+      } else  {
+        cat("Explain cases [0]\n")
+        Nexplained <- x$N0
+        }
     for (i in seq_len(length(PIs))) {
       cat("\n----------------\n")
       cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
       writeLines(strwrap(PIs[[i]]$PI))
-      writeLines(strwrap(sprintf("Number of case: %s = %i\n",paste(x$coverage[,i],collapse=" + "),sum(x$coverage[,i]))))
-      ## number of case
-      writeLines(strwrap(sprintf("Percentage: %s = %s \n",
-                  paste(round(x$prop[,i],digits),collapse=" + "),
-                  round(sum(x$prop[,i]),digits)
+      cat("\n")
+      writeLines(strwrap(sprintf("Number of cases: %s\n",paste(x$Ncoverage[,i],collapse=" + "))))
+      ## number of case (sum is not the number of explained cases owning to cases covered by multiple PIs)
+      writeLines(strwrap(sprintf("Percentage of explained cases: %s\n",
+                  paste(paste(round(x$Ncoverage[,i]/Nexplained*100,digits),"%",sep=""),collapse=" + ")
                                  )
                          )
                  )
       ## prop
-      writeLines(strwrap(sprintf("No. of cases by Multiple PIs: %s (%s)\n",x$Ndup[i],
-                                 round(x$Ndup[i]/x$N,digits))))
+      writeLines(strwrap(sprintf("Cases covered by multiple PIs: %s (%s%%)\n",x$Ndup[i],
+                                 round(x$Ndup[i]/Nexplained * 100,digits))))
       ## dup case
       writeLines(strwrap(sprintf("Cases: %s \n",x$cases[i])))
     }
@@ -806,6 +843,41 @@ update.QCA <- function (object, ..., evaluate = TRUE)
       eval(call, parent.frame())
     else call
   }
+
+implicantsToDF <- function(x, conditions){
+    ## implicantsToDF(x="A*S*R+A*C*S*i",conditions=c("A", "C", "S", "I", "R"))
+    x <- strsplit(x,"+",fixed=T)[[1]]
+    x <- strsplit(x,"*",fixed=T)
+    dat <- as.data.frame(matrix(-9,length(x),length(conditions)))
+    names(dat) <- toupper(conditions)
+    for (i in 1:length(x)){
+        xx <- x[[i]]
+	idx <- match(toupper(xx),toupper(conditions))
+	dat[i,idx] <- as.numeric(xx == toupper(xx))
+    }
+    dat
+}
+
+boolIntersect <- function(..., string=TRUE){
+    x <- paste(unlist(list(...)),collapse="+")
+    condition <- toupper(unique(strsplit(x,"[*+]")[[1]]))
+    nlevel <- rep(2, length(condition))
+    DF <- implicantsToDF(x,condition)
+    ids <- apply(DF,1,subCombination) ## can be matrix of a list
+    if (is.list(ids)) ids <- unlist(ids) else ids <- as.vector(ids)
+    tids <- table(ids)
+    ids <- names(tids)[tids==nrow(DF)]
+    ids <- as.numeric(ids)
+    if (length(ids)>0) {
+        ans <- id2Implicant(ids,nlevel,names=condition)
+        if (string) {
+            ans <- apply(ans,1,toString,traditional=TRUE,nlevels=nlevel,name=condition)
+            ans <- paste(ans,collapse=" + ") ## ans always has only one implicant?
+        }
+    } else ans <- NULL
+     writeLines(strwrap(ans))
+    invisible(ans)
+}
 
 thresholdssetter <- function(x,nthreshold=1,value=TRUE,method="average",thresholds=NULL,dismethod="euclidean",print.table=TRUE){
   ## method -> see mehtod of hclust

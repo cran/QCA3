@@ -1,6 +1,7 @@
 \name{coincid}
 \alias{coincid}
 \alias{print.coincid}
+\alias{overlap}
 \title{Produces a coincidence matrix}
 \description{
 Produce a coincidence matrix from a crip set or fuzzy set data.
@@ -9,10 +10,14 @@ Produce a coincidence matrix from a crip set or fuzzy set data.
 coincid(x, standardized = FALSE, use = c("complete", "pairwise"))
 %# print method for class coincid
 \method{print}{coincid}(x, digits = 3, ...)
+
+overlap(x, y)
 }
 
 \arguments{
-  \item{x}{For coincide, x is a dataframe of crip set or fuzzy set data, which ranges from
+  \item{x}{x is a dataframe of crip set or fuzzy set data, which ranges from
+  0 to 1.}
+  \item{y}{y is a dataframe of crip set or fuzzy set data, which ranges from
   0 to 1.}
   \item{standardized}{When TRUE, produce the standardized coincidence scores.}
   \item{use}{The method of handling missing data. "complete" means
@@ -34,8 +39,6 @@ coincid(x, standardized = FALSE, use = c("complete", "pairwise"))
 
 \author{Ronggui HUANG}
 \seealso{\code{\link[QCA3]{suffnec}}}
-
-%\examples{
-%}
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\examples{
+coincid(CoD[,c("cod","econdev","ethlihom")])
+}

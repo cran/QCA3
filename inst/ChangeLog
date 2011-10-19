@@ -1,3 +1,61 @@
+2012-04-10
+	* add data set of Stokke
+	* solve issues caused by updated version of QCA by removing it from Suggestions.
+
+2012-03-31
+	* correct an argument to pass check, correct a dataset name
+	* correct the name of changelog
+
+2012-03-30
+	* improvement of Rd files
+	* handling dontcare in conditions
+
+2012-03-25
+	* add McCammonVanDyke.rd
+
+2012-03-22
+	* new data on social movement coalition
+
+2012-02-23
+	* add boolIntersect.Rd, implicantsToDF.Rd, consistGap.Rd, setOUT.Rd
+	* minor bugfixes in coverage and consistency methods
+	* change summary.QCA and its print method
+	* tidy up some Rd files
+
+2012-02-22
+	* new function of remainderReduce
+	* chang the class order of truthTables to make _sort_ work better
+	* minor change in summary.QCA
+
+2012-02-21
+	* add header to source files
+	* unique coverage for QCA object
+	* fs_tt is dropped from the package now.
+	* new function to calc consistency of solution, new outcome slot in QCA class
+	* coverage and consistency for QCA object.
+
+2012-02-19
+	* "mixed" method to handle contradictory configuration in cs_truthTable
+
+2011-11-12
+	* new function of boolIntersect
+	* improvement of boolIntersect
+	* boolIntersect is exported,fs_tt is defunct and removed
+
+2011-11-11
+	* add priConsistency and Product to fs_truthTable
+
+2011-11-10
+	* improvement on constrReduce.rd
+	* new function of consistGap, sort method for truthTable and compelte argument for all *truthTable
+	* various minor changes
+
+2011-10-10
+	* complete is re-introduced into fs_truthTable, cs_truthTable and mv_truthTable as requested
+	* new function of consistGap for fs_truthTable
+	* new functions of implicantsToDF() and setOUT()
+	* improvement on constrReduce.rd
+
 2011-09-20 (as 0.0-4)
 	* document fsnot function.
 	* remove fs_tt (no longer needed)

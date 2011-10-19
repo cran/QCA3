@@ -1,5 +1,8 @@
+## This file (R/truthTable.R) is part of QCA3 package
+## copyright: HUANG Ronggui 2008-2012
+
 coincid <- function(x,standardized=FALSE,use=c("complete","pairwise")){
-  
+
   coincid_fn <- function(x,y,standardized,...){
     ## helper function
     allvalues <- !is.na(x) & !is.na(y)
@@ -28,7 +31,7 @@ coincid <- function(x,standardized=FALSE,use=c("complete","pairwise")){
   for (i in 1:nindex) {
     rindex <- index[i,][2]
     cindex <- index[i,][1]
-    ans[rindex,cindex] <- coincid_fn(x[,rindex],x[,cindex],standardized=standardized)     
+    ans[rindex,cindex] <- coincid_fn(x[,rindex],x[,cindex],standardized=standardized)
   }
   rownames(ans) <- colnames(ans) <- names(x)
   diag(ans) <- 1

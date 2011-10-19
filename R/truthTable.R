@@ -1,5 +1,5 @@
 ## This file (R/truthTable.R) is part of QCA3 package
-## copyright: HUANG Ronggui 2008-2010
+## copyright: HUANG Ronggui 2008-2011
 
 lowerLimite <- function(x, n, conf.level=0.95) {
   ## If lowerLimite() > benchmark, then it the result supportes H1.
@@ -11,8 +11,8 @@ lowerLimite <- function(x, n, conf.level=0.95) {
 }
 
 cs_truthTable <- function(mydata, outcome, conditions,
-                          method = c("deterministic","probabilistic"),
-                          weight=NULL,
+                          method = c("deterministic","probabilistic","mixed"),
+                          weight=NULL,complete=FALSE,
                           show.cases = TRUE, cases=NULL,
                           cutoff1 = 1, cutoff0 = 1, benchmark=0.65, conf.level = 0.95,
                           missing=c('missing','dontcare','positive','negative')
@@ -28,7 +28,7 @@ cs_truthTable <- function(mydata, outcome, conditions,
     mydata <- mydata[,c(outcome,conditions,weight,cases)]
     missing <- match.arg(missing)
     if (missing=="missing")  mydata <- na.exclude(mydata) # eliminate missing data
-    if (missing=='dontcare') mydata[is.na(mydata)] <- -9
+    if (missing=='dontcare') mydata[is.na(mydata)] <- -9 # how to assigned rowid and proceed the minimization?
     if (missing=='positive') mydata[is.na(mydata)] <- 1
     if (missing=='negative') mydata[is.na(mydata)] <- 0
     ## take care of missing data
@@ -43,17 +43,11 @@ cs_truthTable <- function(mydata, outcome, conditions,
     }
     if (!is.null(weight)) weight <- mydata[[weight]] else weight <- rep(1, nrow(mydata))
     method <- match.arg(method)
-    ## getId <- function(implicant,nlevels){
-    ##     ## id of combinations
-    ##     IDX <- cumprod(nlevels)/nlevels
-    ##     ans <- sum(implicant*IDX)+1
-    ##     ans
-    ## }
-    ## rowid <- apply(conditionsData, 1, getId, nlevels=nlevels)
     rowid <- apply(conditionsData, 1, implicant2Id, nlevels=nlevels)
     ## use id of grouping rather than combination to handle dontcare case
     N_total <- sum(weight,na.rm=TRUE) ## total number of case taking freq weight into consideration
-    Positive <- tapply(outcomeData,rowid,FUN=function(each) all(each==1)) ## index of configuration with positive outcome
+    Positive <- tapply(outcomeData,rowid,FUN=function(each) all(each==1))
+    ## index of configuration with positive outcome
     ## with aid of rowid, we aggregate those with common rowid into one group.
     Pid <- names(Positive)[Positive] ## rownames of configuration with positive outcome
     Negative <- tapply(outcomeData,rowid,FUN=function(each) all(each==0))
@@ -62,9 +56,17 @@ cs_truthTable <- function(mydata, outcome, conditions,
         c1 <- (!all(each==0)) && (!all(each==1))
         c1})
     Cid <- names(Negative)[Contradictory] ## all.equal(names(Positive),names(Negative))
-    WhichUnique <- match(sort(unique(rowid)),rowid) ## pay attention to the use of match()
-    allExpress <- conditionsData[WhichUnique,]
-    rownames(allExpress) <- as.character(sort(unique(rowid)))
+    if (complete) {
+        exp <- sprintf("c(0:%i)", nlevels - 1)
+        allExpress <- eval(parse(text = sprintf("expand.grid(%s)",
+                                 paste(conditions, "=", exp, sep = "", collapse = ","))))
+        rownames(allExpress) <- apply(allExpress,  1, implicant2Id, nlevels = nlevels)
+    }
+    else {
+        WhichUnique <- match(sort(unique(rowid)),rowid) ## pay attention to the use of match()
+        allExpress <- conditionsData[WhichUnique,]
+        rownames(allExpress) <- as.character(sort(unique(rowid)))
+    }
     ## NCase
     allExpress$NCase <- 0
     Ncase <- tapply(weight,rowid,sum)
@@ -110,6 +112,16 @@ cs_truthTable <- function(mydata, outcome, conditions,
         allExpress$OUT[Dontcareid] <- "-9"
         ## no contradictory cases when using probabilistic method???
     }
+    if (method=="mixed"){
+        limit1 <- lowerLimite(allExpress$freq1,allExpress$NCase,conf.level)
+        limit0 <- lowerLimite(allExpress$freq0,allExpress$NCase,conf.level)
+        pidx <- intersect(which(limit1 >=benchmark),match(Cid,rownames(allExpress)))
+        nidx <- intersect(which(limit0 >=benchmark),match(Cid,rownames(allExpress)))
+        Dontcareid <- setdiff(match(Cid,rownames(allExpress)),c(pidx,nidx))
+        allExpress$OUT[pidx] <- "1"
+        allExpress$OUT[nidx] <- "0"
+        allExpress$OUT[Dontcareid] <- "-9"
+    }
     ## show.cases
     if (show.cases){
         if (is.null(cases)) casesNames <- rownames(mydata) else casesNames <- mydata[,cases]
@@ -122,7 +134,7 @@ cs_truthTable <- function(mydata, outcome, conditions,
     }
     allExpress
     ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call())
-    class(ans) <- c("truthTable","cs_truthTable")
+    class(ans) <- c("cs_truthTable","truthTable")
     ans
 }
 
@@ -130,7 +142,7 @@ cs_truthTable <- function(mydata, outcome, conditions,
 
 mv_truthTable <- function(mydata, outcome, conditions,
                           method = c("deterministic","probabilistic"),
-                          weight=NULL,
+                          weight=NULL,complete=FALSE,
                           show.cases = TRUE, cases=NULL,
                           cutoff1 = 1, cutoff0 = 1, benchmark=0.65, conf.level = 0.95,
                           missing=c('missing','dontcare','positive','negative')
@@ -142,7 +154,7 @@ mv_truthTable <- function(mydata, outcome, conditions,
     if (outcome==""||conditions =="") stop("You must specific outcome and conditions first.")
     if (length(conditions)<2) stop("The number of conditions must greater than 1.")
     reserved <- c("NCase","freq1","freq0","OUT","Cases")
-    if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
+    if (any(outcome %in% reserved)) stop("Some names of condition are reserved for truthTable.")
     mydata <- mydata[,c(outcome,conditions,weight,cases)]
     missing <- match.arg(missing)
     if (missing=="missing")  mydata <- na.exclude(mydata) # eliminate missing data
@@ -173,9 +185,17 @@ mv_truthTable <- function(mydata, outcome, conditions,
         c1 <- (!all(each==0)) && (!all(each==1))
         c1})
     Cid <- names(Negative)[Contradictory] ## all.equal(names(Positive),names(Negative))
-    WhichUnique <- match(sort(unique(rowid)),rowid) ## pay attention to the use of match()
-    allExpress <- conditionsData[WhichUnique,]
-    rownames(allExpress) <- as.character(sort(unique(rowid)))
+    if (complete) {
+        exp <- sprintf("c(0:%i)", nlevels - 1)
+        allExpress <- eval(parse(text = sprintf("expand.grid(%s)",
+                                 paste(conditions, "=", exp, sep = "", collapse = ","))))
+        rownames(allExpress) <- apply(allExpress,  1, implicant2Id, nlevels = nlevels)
+    }
+    else {
+        WhichUnique <- match(sort(unique(rowid)),rowid) ## pay attention to the use of match()
+        allExpress <- conditionsData[WhichUnique,]
+        rownames(allExpress) <- as.character(sort(unique(rowid)))
+    }
     ## NCase
     allExpress$NCase <- 0
     Ncase <- tapply(weight,rowid,sum)
@@ -229,17 +249,17 @@ mv_truthTable <- function(mydata, outcome, conditions,
     }
     allExpress
     ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call())
-    class(ans) <- c("truthTable","mv_truthTable")
+    class(ans) <- c("mv_truthTable","truthTable")
     ans
 }
 
 fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistency_cutoff=0.8,
-                          show.cases = TRUE, quiet = FALSE,cases=NULL,...)
+                          show.cases = TRUE, quiet = FALSE,cases=NULL,complete=FALSE, ...)
 {
     membership_cutoff=0.5
     if (consistency_cutoff>1 || consistency_cutoff<0) stop("consistency_cutoff should be in [0,1].")
     if (consistency_cutoff<0.75) warning("It is suggested that consistency_cutoff be >= 0.75.")
-    if (outcome==""||conditions=="") stop("You must specific outcome and conditions first.")
+    if (outcome==""||conditions=="") stop("outcome and conditions must be specified.")
     if (length(conditions)<2) stop("The number of conditions must greater than 1.")
     reserved <- c("NCase","freq1","freq0","OUT","Cases")
     if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
@@ -266,6 +286,9 @@ fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistenc
     score_mat <- apply(allExpress,1,function(x) getScore(x,data=conditionsData))
     allExpress$NCase<- apply(score_mat,2,function(x) sum(x>membership_cutoff))
     allExpress$Consistency <- apply(score_mat,2,function(x,outcome) {sum(pmin(x,outcome))/sum(x)},outcome=mydata[,outcome])
+    allExpress$priConsistency <- apply(score_mat,2,function(x,outcome) {(sum(pmin(x,outcome)) - sum(pmin(x, outcome, 1 - outcome))) /
+                                                                            (sum(x) - sum(pmin(x, outcome, 1 - outcome))) },outcome=mydata[,outcome])
+    allExpress$sqrtProduct <- allExpress$Consistency * allExpress$priConsistency
     allExpress$OUT <- "?"
     allExpress$OUT[allExpress$NCase >= ncases_cutoff & allExpress$Consistency > consistency_cutoff]<-"1"
     allExpress$OUT[allExpress$NCase >= ncases_cutoff & allExpress$Consistency <= consistency_cutoff]<-"0"
@@ -273,17 +296,19 @@ fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistenc
     allExpress$freq0 <- allExpress$freq1 <- 0
     allExpress$freq0[allExpress$OUT=="0"] <- allExpress$NCase[allExpress$OUT=="0"]
     allExpress$freq1[allExpress$OUT=="1"] <- allExpress$NCase[allExpress$OUT=="1"]
-    allExpress <- allExpress[,c(seq_len(length(conditions)),(length(conditions)+3):(length(conditions)+5),(length(conditions)+1):(length(conditions)+2))]
-    ## reorder alExpress
+    allExpress <- allExpress[,c(seq_len(length(conditions)),(length(conditions)+5):(length(conditions)+7),(length(conditions)+1):(length(conditions)+4))]
+    ## reorder allExpress
     if (show.cases){
         if (is.null(cases)) cases <- rownames(mydata) else cases <- mydata[,cases]
         cases <- gsub(",","_",cases)
         allExpress$Cases <- apply(score_mat,2,function(x) paste(cases[which( x > membership_cutoff)],sep="",collapse=","))
     }
-    allExpress <- allExpress[allExpress$OUT != "?",,drop=FALSE]
+    if (!complete) {
+        allExpress <- allExpress[allExpress$OUT != "?",,drop=FALSE]
+    }
     rownames(allExpress) <- apply(allExpress[,conditions],1, implicant2Id, nlevels=rep(2,length(conditions)))
     ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=rep(2,length(conditions)),call=match.call())
-    class(ans) <- c("truthTable","fs_truthTable")
+    class(ans) <- c("fs_truthTable","truthTable")
     ans
 }
 
@@ -292,7 +317,36 @@ print.truthTable <- function(x,...){
     print(x$truthTable)
 }
 
-sort.fs_truthTable <- function (x, decreasing = FALSE, ...) {
-    x$truthTable <- x$truthTable[order(x$truthTable$Consistency,decreasing=decreasing),]
+sort.fs_truthTable <- function (x, decreasing = TRUE, criterion="Consistency", ...) {
+    x$truthTable <- x$truthTable[order(x$truthTable[,criterion],decreasing=decreasing),]
+    x
+}
+
+sort.truthTable <- function (x, decreasing = TRUE, criterion="OUT", ...) {
+    if (criterion == "groupIndex") {
+        x$truthTable <- x$truthTable[order(rownames(x$truthTable),decreasing=decreasing),]
+    } else {
+        x$truthTable <- x$truthTable[order(x$truthTable[,criterion],decreasing=decreasing),]
+    }
+    x
+}
+
+consistGap <- function(x){
+    if (!inherits(x,"fs_truthTable")) stop("x must be an object of class 'fs_truthTable'.")
+    x <- sort(sort(x),criterion="OUT")
+    gaps <- c(NA,abs(diff(x$truthTable$Consistency)))
+    ans <- cbind(x$truthTable[,c("OUT","freq1","freq0","NCase","Consistency")],ConsistGap=gaps)
+    ## ans$MaxGap <- ""
+    ## ans$MaxGap[which(ans$ConsistGap == max(ans$ConsistGap,na.rm=TRUE))] <- "max"
+    rownames(ans) <- row.names(x$truthTabl)
+    ans
+}
+
+setOUT <- function(x, rownames, value){
+## x is a truthTable, rownames is character vector of rownames, value is the new OUT
+    if (!inherits(x,"truthTable")) stop("x must be an object of class 'truthTable'.")
+    if (any(!(value %in% c(0, 1, -9)))) stop("value must be 0, 1 or -9.")
+    idx <- match(as.character(rownames), rownames(x$truthTable))
+    x$truthTable[idx,"OUT"] <- value
     x
 }

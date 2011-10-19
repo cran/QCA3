@@ -44,6 +44,12 @@ object of QCA class. Otherwise, it returns the call.}
   The traditional way uses upper-case letters representing 1 and and
   lower-case letters reprensenting 0. The Tosmana-style uses
   \code{condition{value}} to represent the prime implicants.
+
+  The summary method calculates the number of cases covered by each implicant,
+  the percentage of explained cases, the number of cases (percentage of explained cases)
+  covered by multiple
+  implications.It also shows the case names covered by each implicant, with
+  (n) indicating the number of implicants coving the case(s).
 }
 \value{
  print method does not return any value.
