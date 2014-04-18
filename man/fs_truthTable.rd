@@ -7,8 +7,9 @@
 }
 \usage{
 fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
-             consistency_cutoff = 0.8, show.cases =TRUE,quiet =FALSE,
-             cases = NULL, complete=FALSE,...)
+              consistency_cutoff = 0.8, prop_cutoff=1, 
+              show.cases =TRUE,quiet = FALSE,
+              cases = NULL, complete=FALSE,...)
 
 \method{sort}{fs_truthTable}(x, decreasing = TRUE, criterion = "Consistency", ...)
 }
@@ -21,7 +22,7 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
     be regarded as dontcare configuration.}
   \item{consistency_cutoff}{Cutoff point of consistenty score, cases with
     consistency score greater than cutoff point are regarded as OUT=1. }
-  % \item{complete}{prints the complete truth table, including configurations without empirical cases.}
+  \item{prop_cutoff}{proportion of consistent/inconsistent cases.}
   \item{show.cases}{show the rownames from the original dataset for each
     combination of conditions.}
   \item{quiet}{Not used currently.}
@@ -61,15 +62,19 @@ fs_truthTable(mydata, outcome, conditions, ncases_cutoff = 1,
   comparative analysis (QCA) and related techniques. ed by Benoit
   RiHoux and Charles Ragin. Sage. This chapter can be downloaded from
   \url{http://www.u.arizona.edu/~cragin/fsQCA/software.shtml}.
+
+  Rubinson, C. (2013), 'Contradictions in fsQCA', Qual Quant 47(5), 2847-2867.
 }
 \author{Ronggui HUANG}
 \seealso{\code{\link{reduce}}, \code{\link{cs_truthTable}} and  \code{\link{fs_truthTable}}}
 \examples{
-fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
-"Stable.FZ"),cases="Country",consistency_cutoff=0.7)
+fs_truthTable(Lipset_fs,"Survived.FZ",
+             c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ"),
+             cases="Country",consistency_cutoff=0.7)
 
-fst <- fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
-"Stable.FZ"),cases="Country",consistency_cutoff=0.7,complete=TRUE)
+fst <- fs_truthTable(Lipset_fs,"Survived.FZ",
+             c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ"),
+             cases="Country",consistency_cutoff=0.7,complete=TRUE)
 
 sort(sort(fst),criterion="OUT")
 

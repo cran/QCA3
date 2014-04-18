@@ -1,7 +1,7 @@
 \name{QCA.methods}
-\alias{plot.QCA}
 \alias{print.QCA}
 \alias{summary.QCA}
+%\alias{plot.QCA}
 \alias{[.QCA}
 \alias{update.QCA}
 \title{Methods for "QCA" an object}
@@ -9,9 +9,9 @@
    Various methods for object from \code{\link{reduce}}
 }
 \usage{
-\method{plot}{QCA}(x,...)
-
-\method{print}{QCA}(x, traditional = TRUE, show.truthTable = TRUE, ...)
+%\method{plot}{QCA}(x,...)
+%
+\method{print}{QCA}(x, traditional = TRUE, show.truthTable = FALSE, ...)
 
 \method{summary}{QCA}(object, traditional = TRUE, show.case = TRUE, ...)
 

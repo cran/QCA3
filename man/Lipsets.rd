@@ -21,9 +21,9 @@ This is the fuzzy set version of Lipset data on Breakdown/survival of democracy 
     \item{\code{Urban}}{The degree of urbanization.}
     \item{\code{Urban.FZ}}{Fuzzy set score of Urban.}
     \item{\code{Literate}}{The degree of literate a county is.}
-    \item{\code{Literate.FZ}}{Fuzze set score of Literate.}
+    \item{\code{Literate.FZ}}{Fuzzy set score of Literate.}
     \item{\code{Industrial}}{The degree of industrialization.}
-    \item{\code{Industrial.FZ}}{Fuzze set score of Industrial}
+    \item{\code{Industrial.FZ}}{Fuzzy set score of Industrial}
     \item{\code{Unstable}}{The degree of political instablity.}
     \item{\code{Stable.FZ}}{Fuzzy set score of political stability.}
   }
@@ -40,13 +40,17 @@ and Charles Ragin. Sage.
 }
 \examples{
 conditions <- c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ")
-reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="exclude",prepro="fs",consistency=0.7)
+reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="exclude",
+      prepro="fs",consistency=0.7)
 ## Formula 1 in page 112
-reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="include",prepro="fs",consistency=0.7)
+reduce(Lipset_fs,"Survived.FZ",conditions,explain="positive",remaind="include",
+       prepro="fs",consistency=0.7)
 ## Formula 2 in page 114
-reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="exclude",prepro="fs",consistency=0.7)
+reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="exclude",
+       prepro="fs",consistency=0.7)
 ## Formula 5 in page 115
-reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="include",prepro="fs",consistency=0.7)
+reduce(Lipset_fs,"Survived.FZ",conditions,explain="negative",remaind="include",
+      prepro="fs",consistency=0.7)
 ## Formula 6 in page 117
 }
 \keyword{datasets}

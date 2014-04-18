@@ -11,7 +11,7 @@ Example data of Time-series QCA.
 \format{
   A data frame with 30 observations on the following 5 variables.
   \describe{
-    \item{\code{ID}}{a factor with levels \code{A80} \code{A90} \code{B80} \code{B90} \code{D80} \code{D90} \code{FI80} \code{FI90} \code{FR80} \code{FR90} \code{G80} \code{G90} \code{IC80} \code{IC90} \code{IR80} \code{IR90} \code{IT80} \code{IT90} \code{L80} \code{L90} \code{NR80} \code{NR90} \code{NT80} \code{NT90} \code{SWE80} \code{SWE90} \code{SWI80} \code{SWI90} \code{UK80} \code{UK90}}
+    \item{\code{ID}}{a factor}
     \item{\code{VOTE}}{a numeric vector}
     \item{\code{FOREIGN}}{a numeric vector}
     \item{\code{UNEMP}}{a numeric vector}

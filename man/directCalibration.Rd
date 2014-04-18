@@ -7,7 +7,8 @@
   Direct method of calibration in fuzzy set QCA.
 }
 \usage{
-directCalibration(x, fullin, fullout, crossover, infz = 0.953, outfz = 0.047, details = FALSE)
+directCalibration(x, fullin, fullout, crossover, infz = 0.953, 
+                 outfz = 0.047, details = FALSE)
 }
 \arguments{
   \item{x}{

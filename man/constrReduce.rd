@@ -85,8 +85,10 @@ identical(newSol$solutions, ans2[3]$solutions)
 ## they are the same.
 
 ## Use easy counterfactuals to get an intermediate solution (Ragin 2008:chapter 9)
-comp <- reduce(Stokke,"success",c("advice","commitment","shadow",'inconvenience',"reverberation"),explain="positive")
-pars <- reduce(Stokke,"success",c("advice","commitment","shadow",'inconvenience',"reverberation"),explain="positive",remaind="include")
+comp <- reduce(Stokke,"success",c("advice","commitment","shadow","inconvenience",
+              "reverberation"),explain="positive")
+pars <- reduce(Stokke,"success",c("advice","commitment","shadow","inconvenience",
+              "reverberation"),explain="positive",remaind="include")
 sa <- SA(pars)
 ## determins easy counterfactuals
 ## method 1 is to manually construct the easy counterfactuals
@@ -98,9 +100,13 @@ c(1,-9,-9,0,-9) # ADVICE*inconvenience
 easy1 <- as.data.frame(easy1)
 constrReduce(comp,include=easy1)
 ## method 2 uses implicantsToDF faciliates such construction
-easy2 <- implicantsToDF(x="ADVICE*SHADOW*REVERBERATION+ADVICE*COMMITMENT*SHADOW*inconvenience+ADVICE*inconvenience",
-                        conditions=c("advice","commitment","shadow",'inconvenience',"reverberation"))
+\dontrun{
+imp <- "ADVICE*SHADOW*REVERBERATION+
+ADVICE*COMMITMENT*SHADOW*inconvenience+
+ADVICE*inconvenience"
+easy2 <- implicantsToDF(imp, 
+          conditions=c("advice","commitment","shadow",'inconvenience',"reverberation"))
 constrReduce(comp,include=easy2)
+}
 ## end of Ragin (2009:chapter 9) example
 }
-

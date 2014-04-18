@@ -1,0 +1,256 @@
+\documentclass[a4paper]{article}
+\usepackage{a4wide,graphicx,color}
+\usepackage[authoryear,round,longnamesfirst]{natbib}
+\usepackage{hyperref}
+\usepackage{underscore}
+
+\definecolor{Red}{rgb}{0.7,0,0}
+\definecolor{Blue}{rgb}{0,0,0.8}
+
+
+\begin{document}
+
+\SweaveOpts{engine=R,eps=FALSE}
+%\VignetteIndexEntry{Qualitative Comparative Analysis using QCA3}
+%\VignetteDepends{QCA3,lpSolveAPI}
+%\VignetteKeywords{qualitative comparative analysis}
+%\VignettePackage{QCA3}
+
+<<preliminaries,echo=FALSE,results=hide>>=
+library(QCA3)
+options(SweaveHooks=list(twofig=function() {par(mfrow=c(1,2))},
+                         twofig2=function() {par(mfrow=c(2,1))},
+                         onefig=function() {par(mfrow=c(1,1))}))
+@
+
+\title{Qualitative Comparative Analysis using QCA3}
+\author{Ronggui Huang}
+\date{\today}
+\maketitle
+
+\section{Introduction}
+QCA3 can do various types of qualitative comparative analysis, namely
+crisp set QCA, fuzzy set QCA and multi-value QCA.
+It allows inclusion of simplifying assumptions and can produce
+intermediate solutions.
+
+All examples in \cite{RihouxRagin2009} can be reproduced by QCA3
+package. To reproduce the following examples, you need to load the
+QCA3 package first by
+<<>>=
+library(QCA3)
+@
+
+\section{Crisp set QCA}
+
+Before conducting crisp set QCA (csQCA) with QCA3, you need to import your dataset into R. If
+your data is in Excel format, I would recommend you to export the data
+to a csv file and import the csv file into R by read.csv function. In
+this article, all datasets are shipped with the QCA3 package, thus I
+will skip the steps of data import.
+
+In crisp set QCA (csQCA), all variables are binary (0 or
+1). The dataset in this example is Lipset_cs. The first step is to
+construct a truth table. You can use the function of
+cs_truthTable to do it.
+
+<<>>=
+(cst <- cs_truthTable(Lipset_cs,outcome="SURVIVAL",
+                      condition=c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB", "GOVSTAB"),
+                      cases="CASEID"))
+@
+
+The above command constructs a truth table and assigns it to an object
+called cst, which can be used in the following analyses. You can
+choose any legitimate object name to store the produced truth table as long as it is a
+legitimate name in R.
+
+In this command, Lipset_cs is the data frame which contains all the variables. The
+argument of outcome specificifies the explained variable, say "SURVIVAL"
+in this example (note that you need to enclose SURVIVAL with
+quotation mark). The argument of condition specificies the explanatory
+variables. It is a string vector, each element of which is a
+condition or explanatory variable. At least two conditions are needed. In this example, five
+conditions are provided. All variables, be outcome or conditions, are
+in the data frame of Lipset_cs. For more details, you can refer to the
+help page of cs_truthTable.
+
+The truth table is constructed by cs_truthTable in an automatic manner.
+However, you can also manually override the outcome by function of
+setOUT, but I will not go through the details here.
+
+At this moment, you need to examine the truth table closely. Perhaps,
+it is a good idea to make connections between the truth table and the
+detailed empirical evidence about each case. Special attention should
+be paid to contradictory configurations, and you  need to to handle
+such contradictory configurations if any. Once you have a truth table without
+contradictory configuration or you have come up a strategy to handle
+them, you can move to the next step, minimization of the truth table
+without remainders. All you need to d is to pass the truth table, cst,
+produced previously, to the reduce function.
+<<>>=
+reduce(cst)
+@
+
+The default explains positive outcome (in this case,
+SURVIVAL=1). If you want to explain negative outcome, you need to set
+the argument of explain to "negative", which is the third step.
+
+<<>>=
+reduce(cst, explain="negative")
+@
+
+By default, remainders are not used and no simplifying assumption is
+made. The fourth step is to get the most parsimonious solution to
+positive outcome by including remainders. All you need to do is to
+set the argument of remainders to "include".
+
+<<>>=
+reduce(cst, remainders="include")
+@
+
+Similarly, you can explain negative outcome by including
+remainders. Now, you need to specify both arguments of explain and remainders.
+
+<<>>=
+reduce(cst, explain="negative", remainders="include")
+@
+
+Now, you may wonder what remainders have been included. It is always a
+good idea to examine them. To do so, you need to assign the return of
+reduce to an object first. Take the explanation of negative outcome
+for example. Let assign it to an object called ansNeg. Then you can
+pass ansNeg to the function of SA, which will return a list of
+remainders used in the minimization (which are also called simplifying
+assuptions). It shows that 18 remainders have been included.
+
+<<>>=
+ansNeg <- reduce(cst, explain="negative", remainders="include")
+SA(ansNeg)
+@
+
+\section{fuzzy set QCA}
+\subsection{Calibration}
+Fuzzy set QCA (fsQCA) requires fuzzy set scores, which range from 0 to
+1. The fuzzy membership scores can be directly assigned according to
+substantive knowledge about the cases at hand.
+
+Often, researchers have interval measures and need to convert such
+measures into fuzzy membership scores. This process is called
+caliberation, which is described in \cite{Ragin2008}. The QCA3 package
+implements the direct method of caliberation. This method requires
+researchers to choose three anchors, namely fullin, fullout and
+crossover values. The fullin value is recoded as fuzzy set score of
+0.953. The fullout value is recoded as fuzzy set score of 0.03, and
+the crossover value is recoded as fuzzy set score of 0.5
+\footnote{0.953 and 0.03 are chosen because the log odds of them are 3
+  and -3 respectively, which are approximate to the description in
+  \cite{Ragin2008}. However, users should note that the result is
+  slightly different from fs/QCA because exact log odds of the fullin and
+  fullout fuzzy membership scores rather than 3 and -3 are used in the
+  QCA3 package.}. Researchers must choose the three anchors based on
+substantive knowledge. One you have the fullin, fullout and corssover
+values, you can caliberate the fuzzy set scores by the
+directCaliberate function.
+
+For example, the data frame of Lipset_fs has an interval variable of
+Developed, and the following command caliberate it with three anchors of
+900 (fullin), 400 (fullout), and 500 (crossover).
+<<>>=
+directCalibration(Lipset_fs$Developed,fullin=900,fullout=400, crossover=550)
+@
+
+You can also add the returned fuzzy set score to the data frame (Lipset_fs) as a
+variable (DFZ) by,
+
+<<eval=FALSE>>=
+Lipset_fs$DFZ <- directCalibration(Lipset_fs$Developed,900,400, 550)
+@
+
+\subsection{Exploratory Analysis}
+Before jumping into fuzzy set QCA, it is always a good idea to explore the
+bivariate relationship between outcome and condition variables. The
+key measures are sufficiency scores and necessary scores. The suffnec
+function takes a data frame as input and produces both sufficiency
+scores and necessary scores matrices.
+
+<<>>=
+suffnec(Lipset_fs[,c("Survived.FZ","Developed.FZ","Urban.FZ",
+                     "Literate.FZ","Industrial.FZ", "Stable.FZ")])
+@
+
+In the above command, Lipset_fs is the name of a data frame. Here I use
+the "[" operator to extract a relevant subset, which is then passed to suffnec.
+
+You can use a graph to depict the set-theoretic consistency and
+coverage. The function fsplot provides a friendly interface. For
+example, if you want to examine whether development and
+urbanization are sufficient for regime survival, you can use the following command.
+
+<<fig=TRUE>>=
+fsplot(Survived.FZ~fsand(Developed.FZ, Urban.FZ),data=Lipset_fs)
+@
+
+The fsplot use a formula interface. The left hand side variable is the
+outcome variable. The right hand side is explanatory
+variable. When the explanatory variable is a conjunctural condition,
+you can use fsand to get the conjunctural condition before
+plotting. In the above example, the right hand side is
+fsand(Developed.FZ, Urban.FZ), which suggests that
+Developed.FZ*Urban.FZ is regarded as a conjunctural condition.
+
+The consistency and coverage scores are displayed in the figure, which
+eases the interpretation of the result.
+
+\subsection{Fuzzy set truth table and minimization}
+At this point, we have made up our minds concerning the
+conditions, and we can construct a fuzzy set truth table for further
+analysis. In the textbook example, five conditions are chosen, and the
+consistency threshold is set to 0.7.
+
+<<>>=
+conditions <- c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ")
+fst <- fs_truthTable(Lipset_fs,"Survived.FZ", conditions, consistency=0.7)
+print(fst)
+@
+
+The above commands construct a fuzzy set truth table, assign it to an
+object called fst, and then print it. Next, we simplify the
+truth table through Boolean minimization.
+
+<<>>=
+fsans <- reduce(fst)
+print(fsans)
+@
+
+The print method only shows minimal information, but the summary
+method shows futher information on the goodness of fit.
+<<>>=
+summary(fsans)
+@
+
+There is an update method for QCA object, so you can use the following
+command to get a result including remainders in the minimization process.
+<<>>=
+update(fsans, remainders="include")
+@
+
+In fsQCA, it is always a good idea to generate a new variable indicating
+the fuzzy set membership in the negation set using fsnot. Using this new fuzzy
+set score to construct a new fuzzy set truth table and minimize it.
+
+<<>>=
+Lipset_fs$Not.Survived <- fsnot(Lipset_fs$Survived.FZ)
+fst2 <- fs_truthTable(Lipset_fs,"Not.Survived", conditions, consistency=0.7)
+print(fst2)
+fsans2 <- reduce(fst2)
+summary(fsans2)
+@
+
+\section{Session Information}
+<<>>=
+sessionInfo()
+@
+\bibliography{QCA3}
+\bibliographystyle{abbrvnat}
+\end{document}

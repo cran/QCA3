@@ -13,11 +13,7 @@ reversal" in Spanish America.
 \format{
   A data frame with 14 observations on the following 12 variables.
   \describe{
-    \item{\code{Country}}{a factor with levels \code{Argentina}
-      \code{Bolivia} \code{Chile} \code{Columbia} \code{CostaRica}
-      \code{Ecuador} \code{ElSalvador} \code{Guatemala} \code{Honduras}
-      \code{Mexico} \code{Nicaragua} \code{Paraguay} \code{Peru}
-      \code{Uruguay} \code{Venezuela}}
+    \item{\code{Country}}{a factor}
     \item{\code{EDF}}{Economically Developed Country. The fuzzy-set
       outcome.}
     \item{\code{EUDF}}{Economically Underdeveloped Country. The

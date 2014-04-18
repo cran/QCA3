@@ -84,14 +84,15 @@ coverage(pmin(1-CoD$demex,1-CoD$econdev),1-CoD$cod,'greater')
 
 ## coverage and consistency for QCA object
 rownames(CoD) <- CoD$label
-tb6.4 <- reduce(CoD,'cod',c('econdev','eduhi','ethlihom','close','demex','nocom'),exp="positive",remainder='include',pre="fs")
+tb6.4 <- reduce(CoD,'cod',c('econdev','eduhi','ethlihom','close','demex','nocom'),
+                exp="positive",remainder='include',pre="fs")
 coverage(tb6.4, CoD)
 coverage(tb6.4, CoD,"unique")
 consistency(tb6.4, CoD)
-cbind(consistency(tb6.4, CoD),coverage(tb6.4,CoD),coverage(tb6.4,CoD,"unique")) ## put together
+cbind(consistency(tb6.4, CoD),coverage(tb6.4,CoD),coverage(tb6.4,CoD,"unique")) 
+## put together
 
 ## coverage method for QCA object
 tb2<-reduce(policyChange~soc+pol+ind+are+foc,Yamasaki2009,cases="country")
 coverage(tb2,Yamasaki2009)
 }
-

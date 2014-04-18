@@ -1,5 +1,7 @@
 \name{fsnot}
 \alias{fsnot}
+\alias{fsand}
+\alias{fsor}
 \title{
   The not opertor for a fuzzy set score.
 }
@@ -8,11 +10,16 @@
 }
 \usage{
 fsnot(x)
+
+fsand(...)
+
+fsor(...)
 }
 \arguments{
   \item{x}{
     a variable presenting fuzzy set score
   }
+  \item{\dots}{fuzyy set score variables}
 }
 \details{
   The not operator is define as 1 - x.

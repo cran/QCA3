@@ -24,14 +24,21 @@ Data set in McCammon and Van Dyke's meta-analysis of studies on social movement 
 Manually input from table 13.1 of the reference.
 }
 \references{
-McCammon & Van Dyke. 2010. Applying Qualitative Comparative Analysis to Empirical Studies of Social Movement Coalition Formation. in Van Dyke, N. & McCammon, H. J. (ed.) Strategic alliances: coalition building and social movements. Minneapolis : University of Minnesota Press.
+McCammon & Van Dyke. 2010. Applying Qualitative Comparative Analysis to Empirical Studies of 
+Social Movement Coalition Formation. in Van Dyke, N. & McCammon, H. J. (ed.) 
+Strategic alliances: coalition building and social movements.
+Minneapolis: University of Minnesota Press.
 }
 \examples{
 data(McCammonVanDyke)
-reduce(McCammonVanDyke,"coalition",c("ideology","threats","opportunity","ties","resources"),cdontcare='negative')
+reduce(McCammonVanDyke,"coalition",
+       c("ideology","threats","opportunity","ties","resources"),
+       cdontcare='negative')
 ## result in figure 13.2
 
-reduce(McCammonVanDyke,"coalition",c("ideology","threats","opportunity","ties","resources"),cdontcare='remainder')
+reduce(McCammonVanDyke,"coalition",
+       c("ideology","threats","opportunity","ties","resources"), 
+       cdontcare='remainder')
 ## result in figure 13.3
 }
 \keyword{datasets}

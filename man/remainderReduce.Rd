@@ -23,8 +23,9 @@ An object of class c("remainders","QCA"), the components are the same as that fr
 %%\references{}
 \author{Ronggui HUANG}
 \examples{
-fst <- fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
-     "Stable.FZ"),cases="Country",consistency_cutoff=0.7,complete=TRUE)
+fst <- fs_truthTable(Lipset_fs,"Survived.FZ",
+       c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ", "Stable.FZ"),
+       cases="Country",consistency_cutoff=0.7,complete=TRUE)
 ## complete must be TRUE
 remainderReduce(fst)
 }

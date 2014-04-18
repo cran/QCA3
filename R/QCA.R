@@ -258,57 +258,67 @@ reduce2 <- function(IDs,nlevels){
 }
 
 PIChart <- function(primeImplicants,explained=NULL){
-    ## primeImplicants with attr of "explained" if explained is NULL
-    ## rows are primeimplicants and columns are original combinations
-    if (is.null(explained)){
-        explained <- attr(primeImplicants,"explained")
-    }
-    nr <- nrow(primeImplicants)
-    nc <- nrow(explained)
-    ans <- matrix(logical(0),nrow=nr,ncol=nc)
-    for (i in seq_len(nr)){
-        for (j in seq_len(nc)){
-            ## idx <- !is.na(primeImplicants[i,])
-            if (FALSE) { ## comment out the old method
-                idx <- !is.dontcare(primeImplicants[i,])
-                ans[i,j] <- isTRUE(all.equal(primeImplicants[i,][idx],explained[j,][idx]))
-            }
-            ans[i,j] <- isSuperSet(primeImplicants[i,], explained[j,])
-        }
+  ## primeImplicants with attr of "explained" if explained is NULL
+  ## rows are primeimplicants and columns are original combinations
+  toName <- function(x){
+    NROW <- nrow(x)
+    ans <- c()
+    nlevels <- rep(2, ncol(x))
+    nm <-names(x)
+    for (i in 1:NROW){
+      ans <- c(ans, toString(x[i, ], TRUE, nlevels, nm))
     }
     ans
+  }
+  
+  if (is.null(explained)){
+    explained <- attr(primeImplicants,"explained")
+  }
+  nr <- nrow(primeImplicants)
+  nc <- nrow(explained)
+  ans <- matrix(logical(0),nrow=nr,ncol=nc)
+  for (i in seq_len(nr)){
+    for (j in seq_len(nc)){
+      ## idx <- !is.na(primeImplicants[i,])
+      if (FALSE) { ## comment out the old method
+        idx <- !is.dontcare(primeImplicants[i,])
+        ans[i,j] <- isTRUE(all.equal(primeImplicants[i,][idx],explained[j,][idx]))
+      }
+      ans[i,j] <- isSuperSet(primeImplicants[i,], explained[j,])
+    }
+  }
+  rownames(ans) <- toName(primeImplicants)
+  colnames(ans) <- toName(explained)
+  ans
 }
 
-solvePIChart <- function (PIChart, method=c("combn"))
-    ## method=c("combn","combinations")
-    ## for large number of conditions, gtolls may be faster
-    ## until it is necessary, used combn only since combn doesn't depend on third party package
-{
-    ## modified version of QCA:::solveChart
-    if (!is.logical(PIChart)) {
-        stop("Please use a logical matrix, such as an object returned by PIChart.\n")
-    }
-    if (all(dim(PIChart) > 1)) {
-        lpobj <- lpSolve:::lp(direction="min", objective.in=rep(1, nrow(PIChart)),const.mat=t(PIChart),const.dir=">=",1,all.bin=TRUE)
-        if (lpobj$status!=0) stop("Can not solve this PMChart.")
-        k <- sum(lpobj$solution)  ## lpobj$solution is one possible solution, but not all.
-        method <- match.arg(method)
-        if (method=="combn")  {
-            combos <- combn(nrow(PIChart), k)
-        }
-        ## else if (method=="combinations") {
-        ##     options(expressions=500000)
-        ##     combos <- t(gtools:::combinations(nrow(PIChart), k))
-        ## }
-        ## until it is necessary, used combn only since combn doesn't depend on third party package
-        sol.matrix <- combos[, apply(combos, 2, function(idx) all(colSums(PIChart[idx,,drop = FALSE])>0)),drop=FALSE]
-    }
-    else {
-        sol.matrix <- matrix(seq_len(nrow(PIChart)),ncol=1)
-    }
-    sol.matrix ## now always return a matrix
-}
 
+solvePIChart <- function(chart, all.sol=TRUE){
+  ## chart: Prime implicants x Primitive Expression
+  if (all(dim(chart) > 1)) {
+    nPrime <- nrow(chart)
+    lp  <- make.lp(0, nPrime)
+    apply(chart, 2, function(xt) add.constraint(lp, xt, type = ">=", rhs=1))
+    set.type(lp,1:nPrime, "binary")
+    set.objfn(lp,rep(1,nPrime))
+    name.lp(lp, "Simplifying a PIChart")
+    # http://lpsolve.r-forge.r-project.org/
+    conv <- solve(lp)
+    if (conv!=0) stop("optimal solution not found")
+    ans <- get.variables(lp)
+    if (all.sol) {
+    k <- sum(ans)
+    combos <- combn(nrow(chart), k)
+    sol.matrix <- combos[, apply(combos, 2, function(idx) all(colSums(chart[idx,,drop = FALSE])>0)),drop=FALSE]
+    } else {
+      sol.matrix <- matrix(which(ans==1), ncol=1)   
+    }
+  }
+  else {
+    sol.matrix <- matrix(seq_len(nrow(chart)),ncol=1)
+  }
+  sol.matrix ## now always return a matrix
+}
 
 reduce <- function(x,...){
     call <- match.call()
@@ -322,7 +332,7 @@ reduce.truthTable <- function(x,
                               contradictions=c("remainders","positive","negative"),
                               dontcare=c("remainders","positive","negative"),
                               cdontcare=c("remainders","positive","negative"),
-                              keepTruthTable=TRUE,...)
+                              keepTruthTable=TRUE, all.sol = FALSE, ...)
 {
     call <- match.call()
     call[[1]] <- as.name("reduce")
@@ -393,14 +403,14 @@ reduce.truthTable <- function(x,
 
     primeImplicants <- id2Implicant(primesId ,nlevels=nlevels,names=conditions)
     PIChart <- PIChart(primeImplicants,explained)
-    sl <- solvePIChart(PIChart)
+    sl <- solvePIChart(PIChart, all.sol=all.sol)
     solutions <- apply(sl,2,function(idx)primeImplicants[idx,])
     commonSolutions <- apply(sl,1,function(idx) {if (length(id <- unique(idx))==1) id })
     ans <- list(solutions=solutions,commonSolutions=commonSolutions,
                 solutionsIDX=sl,primeImplicants=primeImplicants,
                 truthTable=truthTable,explained=explained,outcome=x$outcome,
                 idExclude=idExclude,nlevels=nlevels,
-                PIChart=PIChart, call=call)
+                PIChart=PIChart, call=call, data=x$data)
     class(ans) <- c("QCA")
     ans
 }
@@ -412,7 +422,7 @@ reduce.formula <- function(x, data,
                            dontcare=c("remainders","positive","negative"),
                            cdontcare=c("remainders","positive","negative"),
                            preprocess=c("cs_truthTable","fs_truthTable","mv_truthTable"),
-                           keepTruthTable=TRUE,...
+                           keepTruthTable=TRUE, all.sol = FALSE, ...
                            )
 {
     ## x is a formula
@@ -436,7 +446,7 @@ reduce.formula <- function(x, data,
     x <- do.call(preprocess,c(list(mydata=data, outcome=outcome,conditions=conditions),dots))
     ans <- do.call(reduce.truthTable,list(x=x,explain=explain,remainders=remainders,
                                           contradictions=contradictions,dontcare=dontcare,cdontcare=cdontcare,
-                                          keepTruthTable=keepTruthTable,dots))
+                                          keepTruthTable=keepTruthTable, all.sol = FALSE, dots))
     ans$call <- call
     ans
 }
@@ -449,8 +459,7 @@ reduce.data.frame <- function(x, outcome, conditions,
                               dontcare=c("remainders","positive","negative"),
                               cdontcare=c("remainders","positive","negative"),
                               preprocess=c("cs_truthTable","fs_truthTable","mv_truthTable"),
-                              keepTruthTable=TRUE,
-                              ...)
+                              keepTruthTable=TRUE, all.sol = FALSE, ...)
 {
     call <- match.call()
     call[[1]] <- as.name("reduce")
@@ -464,7 +473,7 @@ reduce.data.frame <- function(x, outcome, conditions,
     x <- do.call(preprocess,c(list(mydata=x, outcome=outcome,conditions=conditions),dots))
     ans <- do.call(reduce.truthTable,list(x=x,explain=explain,remainders=remainders,
                                           contradictions=contradictions,dontcare=dontcare,cdontcare=cdontcare,
-                                          keepTruthTable=keepTruthTable,dots))
+                                          keepTruthTable=keepTruthTable,all.sol=all.sol, dots))
     ans$call <- call
     ans
 }
@@ -578,7 +587,7 @@ prettyPI <- function(object,traditional=TRUE,...){
   ans
 } ## end of prettyPI()
 
-print.QCA <- function(x,traditional=TRUE,show.truthTable=TRUE,...){
+print.QCA <- function(x,traditional=TRUE,show.truthTable=FALSE,...){
     cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
     PIs <- prettyPI(x,traditional=traditional)
     Nec <- commonConfiguration(x,traditional=traditional)
@@ -615,19 +624,20 @@ summary.QCA <- function(object,traditional=TRUE,show.case=TRUE,...){
         N_total <- sum(truthTable["NCase"])
         N_positive <- sum(truthTable["freq1"])
         N_negative <- sum(truthTable["freq0"])
-        N <- apply(object$PIChart,1,function(each)sum(each * NCase))
+        N <- apply(object$PIChart, 1, function(each) sum(each * NCase))
         coverage <- apply(object$solutionsIDX,2,function(each) N[each])
+        if (!is.matrix(coverage)) coverage <- as.matrix(coverage)
         ## a matrix, each column represents one solution
         rownames(coverage) <- paste("PI",seq_len(nrow(coverage)),sep=".")
         colnames(coverage) <- paste("S",seq_len(ncol(coverage)),sep=".")
         prop <- coverage/N_total
     }
     cases <- apply(object$solutionsIDX,2,function(each) {
-        ByNPIs <- colSums(object$PIChart[each,])
+        ByNPIs <- colSums(object$PIChart[each,,drop=FALSE])
         ## cases covered by ByNPIs PIs
         N_duplicated <- sum(NCase*(ByNPIs-1))
         ## cases covered by multiple PIs
-        idx <- object$PIChart[each,]
+        idx <- object$PIChart[each,,drop=FALSE]
         CasesWithN <- paste("(",ByNPIs,")",Cases,sep="")
         ans <- apply(idx,1,function(idx2) paste(CasesWithN[which(idx2)],sep="", collapse=" "))
         ## group cases for each config
@@ -635,8 +645,14 @@ summary.QCA <- function(object,traditional=TRUE,show.case=TRUE,...){
         res <- c(PI=ans,Ndup=N_duplicated)
         res
     })
+    gof <- list()
+    for (i in seq(length(object$solutions))) {
+        gof[[i]] <- cbind(consistency(object, data=object$data, which=i),
+                        coverage(object,data=object$data, type="raw", which=i),
+                        coverage(object,object$data,type="unique", which=i))
+    }
     ans <- list(N=N_total,N1=N_positive,N0=N_negative,Ndup=as.numeric(cases["Ndup",]),
-                Ncoverage=coverage,prop.total=prop,PIs=PIs,call=object$call,cases=cases["PI",])
+                Ncoverage=coverage,prop.total=prop,PIs=PIs,call=object$call,cases=cases["PI",], gof=gof)
     class(ans) <- "summary.QCA"
     ans
 }
@@ -661,6 +677,8 @@ print.summary.QCA <- function(x,digits=3,traditional=FALSE,...){
       cat("\n----------------\n")
       cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
       writeLines(strwrap(PIs[[i]]$PI))
+      cat("\nGoodness of fit", fill=TRUE)
+      print(x$gof[[i]])
       cat("\n")
       writeLines(strwrap(sprintf("Number of cases: %s\n",paste(x$Ncoverage[,i],collapse=" + "))))
       ## number of case (sum is not the number of explained cases owning to cases covered by multiple PIs)
@@ -748,6 +766,21 @@ CSA <- function(object1,object0){
    object1
 }
 
+print.SA <- function (x, traditional = TRUE, ...)
+{
+    if (length(x$solutions[[1]])==0) cat("No Simplifying Assumption",fill = TRUE) else {
+    PIs <- prettyPI(x, traditional = traditional)
+    Nec <- commonConfiguration(x, traditional = traditional)
+    cat("Simplifying Assumptions",fill = TRUE)
+    for (i in seq_len(length(PIs))) {
+        cat("\n----------------\n")
+        cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",
+            i, PIs[[i]]$N))
+        writeLines(strwrap(PIs[[i]]$PI))
+        cat(sprintf("\nCommon configuration: %s\n", Nec[[i]]))
+    }
+  }
+}
 
 '[.QCA' <- function(object,which){
   if (!all(which %in% seq_len(length(object$solutions)))) stop("which is out of range.")
@@ -879,26 +912,25 @@ boolIntersect <- function(..., string=TRUE){
     invisible(ans)
 }
 
-thresholdssetter <- function(x,nthreshold=1,value=TRUE,method="average",thresholds=NULL,dismethod="euclidean",print.table=TRUE){
+thresholdssetter <- function(x, nthreshold=1, method="average", dismethod="euclidean", thresholds=NULL, plot=TRUE){
   ## method -> see mehtod of hclust
-  if (is.null(thresholds)){
-    nx <- sort(x)
-    idx <- cutree(hclust(dist(nx,method=dismethod),method=method),nthreshold+1)
-    ans <-  sapply(seq_len(nthreshold),FUN=function(each) (max(nx[idx==each])+min(nx[idx==(each+1)]))/2)
-  } else {
-    if (any(thresholds >= max(x,na.rm=TRUE))) stop("Thresholds are too large.")
-    if (any(thresholds < min(x,na.rm=TRUE))) stop("Thresholds are too small.")
-    ans <- thresholds
-  }
-  if (value){
-    threshold <- ans
-    ans <- unclass(cut(x,c(min(x,na.rm=TRUE)-1,ans,max(x,na.rm=TRUE)),include.lowest=T)) - 1
+    if (is.null(thresholds)){
+        nx <- sort(x)
+        idx <- cutree(hclust(dist(nx,method=dismethod),method=method),nthreshold+1)
+        thresholds <-  sapply(seq_len(nthreshold),FUN=function(each) (max(nx[idx==each])+min(nx[idx==(each+1)]))/2)
+    } else {
+        if (any(thresholds >= max(x,na.rm=TRUE))) stop("Thresholds are too large.")
+        if (any(thresholds < min(x,na.rm=TRUE))) stop("Thresholds are too small.")
+    }
+    ans <- unclass(cut(x,c(min(x,na.rm=TRUE)-1, thresholds, max(x,na.rm=TRUE)),include.lowest=T)) - 1
     ## use min-1, so it works even the thresholds equal min
-    if (print.table) print(table(ans))
     attr(ans,"levels") <- NULL
-    attr(ans,"threshold") <- threshold
-  }
-  if (print.table && value) invisible(ans) else ans
+    attr(ans,"thresholds") <- thresholds
+    if (plot) {
+        barplot(table(ans), ylab="Number of cases")
+        box()
+    }
+    ans
 }
 
 ## EssentialPI <- function(PI){

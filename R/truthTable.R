@@ -133,7 +133,7 @@ cs_truthTable <- function(mydata, outcome, conditions,
         allExpress$Cases[allExpress$OUT!="C"] <- gsub("\\[|\\]","",allExpress$Cases[allExpress$OUT!="C"]) ## mark contr case
     }
     allExpress
-    ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call())
+    ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call(), data=mydata)
     class(ans) <- c("cs_truthTable","truthTable")
     ans
 }
@@ -248,72 +248,96 @@ mv_truthTable <- function(mydata, outcome, conditions,
         allExpress$Cases[allExpress$OUT!="C"] <- gsub("\\[|\\]","",allExpress$Cases[allExpress$OUT!="C"]) ## mark contr case
     }
     allExpress
-    ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call())
+    ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=nlevels,call=match.call(),data=mydata)
     class(ans) <- c("mv_truthTable","truthTable")
     ans
 }
 
-fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistency_cutoff=0.8,
+fs_truthTable <- function(mydata, outcome, conditions,ncases_cutoff=1,consistency_cutoff=0.8, prop_cutoff=1,
                           show.cases = TRUE, quiet = FALSE,cases=NULL,complete=FALSE, ...)
 {
-    membership_cutoff=0.5
-    if (consistency_cutoff>1 || consistency_cutoff<0) stop("consistency_cutoff should be in [0,1].")
-    if (consistency_cutoff<0.75) warning("It is suggested that consistency_cutoff be >= 0.75.")
-    if (outcome==""||conditions=="") stop("outcome and conditions must be specified.")
-    if (length(conditions)<2) stop("The number of conditions must greater than 1.")
-    reserved <- c("NCase","freq1","freq0","OUT","Cases")
-    if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
-    mydata <- mydata[,c(outcome,conditions,cases)]
-    mydata <- na.exclude(mydata) # eliminate missing data
-    fulldata <- mydata[,c(outcome,conditions)]
-    if (any(fulldata<0)|| any(fulldata>1)) stop("Fuzzy set score must in [0,1].")
-    ncases_cutoff <- ifelse(ncases_cutoff<1,ncases_cutoff*nrow(fulldata),ncases_cutoff)
-    allExpress <- eval(parse(text=(sprintf("expand.grid(%s)",paste(conditions,"=1:0",sep="",collapse=",")))))
-    conditionsData <- mydata[,conditions]
-    ## helper function of getScore
-    getScore <- function(index,data){
-        Negative <- which(index==0)
-        Positive <- which(index==1)
-        if (length(Negative)>0 && length(Positive)>0) {
-            score <- pmin(apply(1-data[,Negative,drop=FALSE],1,min),apply(data[,Positive,drop=FALSE],1,min))
-        } else if (length(Negative)>0 && length(Positive)==0) {
-            score <- apply(1-data[,Negative,drop=FALSE],1,min)
-        } else if (length(Negative)==0 && length(Positive)>0) {
-            score <- apply(data[,Positive,drop=FALSE],1,min)
-        }
+  membership_cutoff=0.5
+  if (consistency_cutoff>1 || consistency_cutoff<0) stop("consistency_cutoff should be in [0,1].")
+  if (consistency_cutoff<0.75) warning("It is suggested that consistency_cutoff be >= 0.75.")
+  if (outcome==""||conditions=="") stop("outcome and conditions must be specified.")
+  if (length(conditions)<2) stop("The number of conditions must greater than 1.")
+  reserved <- c("NCase","freq1","freq0","OUT","Cases")
+  if (any(outcome %in% reserved)) stop("Some names of condition are reserved fro truthTable.")
+  mydata <- mydata[,c(outcome,conditions,cases)]
+  mydata <- na.exclude(mydata) # eliminate missing data
+  fulldata <- mydata[,c(outcome,conditions)]
+  if (any(fulldata<0)|| any(fulldata>1)) stop("Fuzzy set score must in [0,1].")
+  ncases_cutoff <- ifelse(ncases_cutoff<1,ncases_cutoff*nrow(fulldata),ncases_cutoff)
+  allExpress <- eval(parse(text=(sprintf("expand.grid(%s)",paste(conditions,"=1:0",sep="",collapse=",")))))
+  conditionsData <- mydata[,conditions]
+  ## helper function of getScore
+  getScore <- function(index,data){
+    Negative <- which(index==0)
+    Positive <- which(index==1)
+    if (length(Negative)>0 && length(Positive)>0) {
+      score <- pmin(apply(1-data[,Negative,drop=FALSE],1,min),apply(data[,Positive,drop=FALSE],1,min))
+    } else if (length(Negative)>0 && length(Positive)==0) {
+      score <- apply(1-data[,Negative,drop=FALSE],1,min)
+    } else if (length(Negative)==0 && length(Positive)>0) {
+      score <- apply(data[,Positive,drop=FALSE],1,min)
     }
-    ## end of helper function of getScore
-    score_mat <- apply(allExpress,1,function(x) getScore(x,data=conditionsData))
-    allExpress$NCase<- apply(score_mat,2,function(x) sum(x>membership_cutoff))
-    allExpress$Consistency <- apply(score_mat,2,function(x,outcome) {sum(pmin(x,outcome))/sum(x)},outcome=mydata[,outcome])
-    allExpress$priConsistency <- apply(score_mat,2,function(x,outcome) {(sum(pmin(x,outcome)) - sum(pmin(x, outcome, 1 - outcome))) /
-                                                                            (sum(x) - sum(pmin(x, outcome, 1 - outcome))) },outcome=mydata[,outcome])
-    allExpress$sqrtProduct <- allExpress$Consistency * allExpress$priConsistency
-    allExpress$OUT <- "?"
-    allExpress$OUT[allExpress$NCase >= ncases_cutoff & allExpress$Consistency > consistency_cutoff]<-"1"
-    allExpress$OUT[allExpress$NCase >= ncases_cutoff & allExpress$Consistency <= consistency_cutoff]<-"0"
-    allExpress$OUT[allExpress$NCase < ncases_cutoff & allExpress$NCase >0] <- "-9"
-    allExpress$freq0 <- allExpress$freq1 <- 0
-    allExpress$freq0[allExpress$OUT=="0"] <- allExpress$NCase[allExpress$OUT=="0"]
-    allExpress$freq1[allExpress$OUT=="1"] <- allExpress$NCase[allExpress$OUT=="1"]
-    allExpress <- allExpress[,c(seq_len(length(conditions)),(length(conditions)+5):(length(conditions)+7),(length(conditions)+1):(length(conditions)+4))]
-    ## reorder allExpress
-    if (show.cases){
-        if (is.null(cases)) cases <- rownames(mydata) else cases <- mydata[,cases]
-        cases <- gsub(",","_",cases)
-        allExpress$Cases <- apply(score_mat,2,function(x) paste(cases[which( x > membership_cutoff)],sep="",collapse=","))
+  }
+  ## end of helper function of getScore
+  score_mat <- apply(allExpress,1,function(x) getScore(x,data=conditionsData))
+  allExpress$Consistency <- apply(score_mat,2,function(x,outcome) {sum(pmin(x,outcome))/sum(x)},outcome=mydata[,outcome])
+  allExpress$priConsistency <- apply(score_mat,2,function(x,outcome) {(sum(pmin(x,outcome)) - sum(pmin(x, outcome, 1 - outcome))) /
+                                                                        (sum(x) - sum(pmin(x, outcome, 1 - outcome))) },outcome=mydata[,outcome])
+  allExpress$sqrtProduct <- allExpress$Consistency * allExpress$priConsistency
+  fzY <- fulldata[, outcome]
+  case_cons <- apply(score_mat,2, function(x) {
+    idx <- which(x>0.5)
+    if (length(idx)>0) {
+      fzX <- x[idx]
+      Y <- fzY[idx]
+      cons <- pmin(fzX, Y)/fzX
+      obsCon <- idx[which(cons >= consistency_cutoff)]
+      obsIncon <- idx[which(cons < consistency_cutoff)]
+      ans <- list(obsCon=obsCon,obsIncon=obsIncon)
     }
-    if (!complete) {
-        allExpress <- allExpress[allExpress$OUT != "?",,drop=FALSE]
-    }
-    rownames(allExpress) <- apply(allExpress[,conditions],1, implicant2Id, nlevels=rep(2,length(conditions)))
-    ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=rep(2,length(conditions)),call=match.call())
-    class(ans) <- c("fs_truthTable","truthTable")
-    ans
+  }
+  ) ##end of case_cons
+  allExpress$freq1 <- sapply(case_cons,function(x) length(x$obsCon))
+  allExpress$freq0 <- sapply(case_cons,function(x) length(x$obsIncon))
+  allExpress$NCase <- sapply(case_cons,function(x) length(unlist(x)))
+  allExpress$OUT <- ""
+  allExpress$OUT[allExpress$NCase < ncases_cutoff] <-"?"  
+  allExpress$OUT[(allExpress$freq0 < allExpress$NCase*prop_cutoff) & (allExpress$freq1 < allExpress$NCase*prop_cutoff)]<-"C"
+  allExpress$OUT[(allExpress$OUT == "") & (allExpress$Consistency >= consistency_cutoff)]<-"1"
+  allExpress$OUT[allExpress$OUT == ""]<-"0"
+  allExpress <- allExpress[,c(seq_len(length(conditions)),(length(conditions)+4):(length(conditions)+7),(length(conditions)+1):(length(conditions)+3))]
+  ## reorder allExpress
+  if (show.cases){
+    if (is.null(cases)) cases <- rownames(mydata) else cases <- mydata[,cases]
+    cases <- gsub(",","_",cases)
+    # allExpress$Cases <- apply(score_mat,2,function(x) paste(cases[which( x > membership_cutoff)],sep="",collapse=","))
+    obsConLab <- sapply(case_cons,function(x) paste(cases[x$obsCon], collapse=","))
+    obsInConLab <- sapply(case_cons,function(x) paste(cases[x$obsIncon], collapse=","))
+    allExpress$Cases <- paste(obsConLab, obsInConLab, sep="/")
+    ## put inconsistent cases in bracket
+  }
+  if (!complete) {
+    allExpress <- allExpress[allExpress$OUT != "?",,drop=FALSE]
+  }
+  rownames(allExpress) <- apply(allExpress[,conditions],1, implicant2Id, nlevels=rep(2,length(conditions)))
+  ans <- list(truthTable=allExpress,outcome=outcome,conditions=conditions,nlevels=rep(2,length(conditions)),call=match.call(),data=mydata)
+  class(ans) <- c("fs_truthTable","truthTable")
+  ans
 }
 
 print.truthTable <- function(x,...){
     x <- unclass(x)
+    cat("configuration distribution")
+    config <- table(x$truthTable$OUT)
+    print(addmargins(config))
+    cat("case distribution\n")
+    case <- aggregate(NCase~OUT,data=x$truthTable,FUN=sum)
+    print(case, row.names=FALSE)
+    cat("=====\n")
     print(x$truthTable)
 }
 
@@ -350,3 +374,7 @@ setOUT <- function(x, rownames, value){
     x$truthTable[idx,"OUT"] <- value
     x
 }
+
+fsor <- function(...) apply(sapply(list(...), function(x) x),1, max)
+
+fsand <- function(...) apply(sapply(list(...), function(x) x),1, min)

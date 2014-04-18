@@ -29,7 +29,8 @@ A new truthTable with a new outcome.
 }
 \author{Ronggui HUANG}
 \examples{
-fst <- fs_truthTable(Lipset_fs,"Survived.FZ",c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ",
-     "Stable.FZ"),cases="Country",consistency_cutoff=0.7)
+fst <- fs_truthTable(Lipset_fs, "Survived.FZ",
+                c("Developed.FZ","Urban.FZ","Literate.FZ","Industrial.FZ","Stable.FZ"),
+                cases="Country",consistency_cutoff=0.7)
 setOUT(fst,"240","0")
 }

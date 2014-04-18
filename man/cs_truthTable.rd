@@ -13,10 +13,11 @@
   of indicator conditions of temporal order.
 }
 \usage{
-cs_truthTable(mydata, outcome, conditions,method = c("deterministic", 
-    "probabilistic", "mixed"), weight = NULL, complete=FALSE, show.cases = TRUE, cases = NULL, 
-    cutoff1 = 1, cutoff0 = 1, benchmark = 0.65, conf.level = 0.95, 
-    missing = c("missing", "dontcare", "positive", "negative")) 
+cs_truthTable(mydata, outcome, conditions,
+             method = c("deterministic", "probabilistic", "mixed"), 
+             weight = NULL, complete=FALSE, show.cases = TRUE, cases = NULL, 
+             cutoff1 = 1, cutoff0 = 1, benchmark = 0.65, conf.level = 0.95, 
+             missing = c("missing", "dontcare", "positive", "negative")) 
 }
 \arguments{
   \item{mydata}{data frame of the raw data.}
@@ -109,11 +110,12 @@ cs_truthTable(mydata, outcome, conditions,method = c("deterministic",
 \seealso{\code{\link{fs_truthTable}},  \code{\link{mv_truthTable}} and \code{\link{reduce}}}
 \examples{
 ## truthTable for csQCA
-cs_truthTable(Lipset_cs,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
-  "INDLAB", "GOVSTAB"),case="CASEID")
+cs_truthTable(Lipset_cs,"SURVIVAL", 
+              c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB", "GOVSTAB"),case="CASEID")
 
-cst <- cs_truthTable(Lipset_cs,"SURVIVAL", c("GNPCAP", "URBANIZA", "LITERACY",
-  "INDLAB", "GOVSTAB"),case="CASEID",complete=TRUE)
+cst <- cs_truthTable(Lipset_cs,"SURVIVAL", 
+             c("GNPCAP", "URBANIZA", "LITERACY", "INDLAB", "GOVSTAB"),
+             case="CASEID",complete=TRUE)
 
 sort(cst)
 }

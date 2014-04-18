@@ -111,7 +111,7 @@ coverage.default <- function(x,y,alternative=c("less","greater"),...){
 ##     coverage
 ##   }
 
-suffnec <- function(x,use=c("complete","pairwise")){
+suffnec <- function(x, use=c("complete","pairwise")){
   consistency_fn <- function(x,y,alternative=c("xley","ylex"),...){
     ## helper function
     allvalues <- !is.na(x) & !is.na(y)

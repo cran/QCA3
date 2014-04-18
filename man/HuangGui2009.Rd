@@ -3,9 +3,11 @@
 \alias{HuangGui2009}
 \docType{data}
 \title{
-data about on-line forum and homeowners' collective resistance
+  data about on-line forum and homeowners' collective resistance
 }
-\description{Dataset used in Huang and Gui's (2009) study of Internet and homeowners' collective resistance.
+\description{
+  Dataset used in Huang and Gui's (2009) study of Internet and
+  homeowners' collective resistance.
 }
 \usage{data(HuangGui2009)}
 \format{
@@ -22,17 +24,25 @@ data about on-line forum and homeowners' collective resistance
 }
 %\details{}
 \source{
-HUANG Ronggui, GUI Yong, 2009, Internet and homeowners' collective
-resistance: a comparative qualitative analysis in
-Shanghai". Sociological Research.(5):29-56.(In Chinese)
-}
+  HUANG Ronggui, GUI Yong, 2009, Internet and homeowners' collective
+  resistance: a comparative qualitative analysis in  Shanghai".
+  Sociological Research.(5):29-56.(In Chinese)
+  }
 \examples{
 data(HuangGui2009)
-reduce(HuangGui2009,"outcome",c("network","big","grievance","ha","BBS"),"pos",case="code")
-ans1 <- reduce(HuangGui2009,"outcome",c("network","big","grievance","ha","BBS"),"pos",case="code",rem="include")
+xs <- c("network","big","grievance","ha","BBS")
+
+reduce(HuangGui2009,"outcome",xs, "pos",case="code")
+
+ans1 <- reduce(HuangGui2009,"outcome",xs, "pos",
+        case="code", rem="include")
+
 SA(ans1)
-reduce(HuangGui2009,"outcome",c("network","big","grievance","ha","BBS"),"neg",case="code")
-ans2 <- reduce(HuangGui2009,"outcome",c("network","big","grievance","ha","BBS"),"neg",case="code",rem="incl")
+
+reduce(HuangGui2009,"outcome",xs, "neg",case="code")
+ans2 <- reduce(HuangGui2009,"outcome",xs,"negative",
+        case="code",rem="incl",all.sol=TRUE)
+
 CSA(ans1,ans2[3])
 SA(ans2[3])
 }
