@@ -288,10 +288,18 @@ PIChart <- function(primeImplicants,explained=NULL){
     }
   }
   rownames(ans) <- toName(primeImplicants)
-  colnames(ans) <- toName(explained)
+  #colnames(ans) <- toName(explained)
+  colnames(ans) <- rownames(explained)
+  class(ans) <- "PIChart"
   ans
 }
 
+print.PIChart <- function(x, ...){
+  chart <- unclass(x)
+  chart[which(x==TRUE)] <- "x"
+  chart[which(x==FALSE)] <- "-"
+  print(chart, quote=FALSE)
+}
 
 solvePIChart <- function(chart, all.sol=TRUE){
   ## chart: Prime implicants x Primitive Expression

@@ -154,7 +154,7 @@ uniqueCoverageQCA <- function(x, data, which=1){
         solX[,i] <- fzx
     }
     ans[Nimplicant+1,"uniqueCoverage"] <- coverage(x=apply(solX,1,max),y=data[,outcome])
-    if (length(Nimplicant)==1){
+    if (Nimplicant==1){
       ## only with one recipe
       ans[1,"uniqueCoverage"] <- coverage(x=solX[,1], y=data[,outcome])
     } else {

@@ -1,3 +1,6 @@
+2014-04-27
+	* fix of summary.QCA
+	
 2014-04-17
 	* use lpSolveAPI to rewrite solvePIChart
 
