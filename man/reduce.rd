@@ -132,7 +132,7 @@ reduce(x,...)
   conditions, 2 minutes for 13 conditions, 4.5 minutes for 14
   conditions, and 9 minutes for 15 conditions. It may take a long time
   to get the solution when there are more conditions. You may use
-  \code{\link[QCA]{eqmcc}} if speed becomes an issue for
+  \code{\link[QCAGUI]{eqmcc}} if speed becomes an issue for
   \code{\link{reduce}}. The disparity is due to the fact that
   \code{eqmcc} eliminates redundant PIs before solving the PIChart
   (Thanks Adrian for pointting it out), but \code{reduce} does not.
@@ -146,7 +146,7 @@ reduce(x,...)
   and yields the same result (see tests directory for details).
 }
 \seealso{
-\code{\link[QCA]{factorize}}, \code{\link{SA}}, \code{\link{CSA}},
+\code{\link[QCAGUI]{factorize}}, \code{\link{SA}}, \code{\link{CSA}},
   \code{\link{constrReduce}}
 }
 \examples{

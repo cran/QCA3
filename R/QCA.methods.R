@@ -50,6 +50,11 @@ consistency.QCA <- function(x, data, which=1, ...){
     if (which>length(x$solutions)) stop("'which' is too large.")
     sol <- x$solutions[[which]]
     outcome <- x$outcome
+    if (match.arg(x$call$explain, c("positive", "negative"))=="positive") {
+      fzy <- data[, outcome]
+    } else {
+      fzy <- 1 - data[, outcome]
+      }
     ## only conduct for one solution indicated by which.
     idx1 <- which(sol==1,arr.ind=TRUE)
     idx0 <- which(sol==0,arr.ind=TRUE)
@@ -70,10 +75,10 @@ consistency.QCA <- function(x, data, which=1, ...){
             soli <- dat1
         }
         fzx <- apply(soli,1,min)
-        solX[,i] <- fzx
-        ans[i,"consistency"] <- consistency(x=fzx,y=data[,outcome])
+        solX[, i] <- fzx
+        ans[i,"consistency"] <- consistency(x=fzx,y=fzy)
     }
-    ans[i+1,"consistency"] <- consistency(x=apply(solX,1,max),y=data[,outcome])
+    ans[i+1,"consistency"] <- consistency(x=apply(solX,1,max),y=fzy)
     implicantName <- apply(sol,1,function(obj) toString(obj,traditional=TRUE,nlevels=x$nlevels,conds))
     rownames(ans) <- c(implicantName,"[solution]")
     ans
@@ -95,6 +100,11 @@ rawCoverageQCA <- function(x, data, which=1){
     if (which>length(x$solutions)) stop("Which is too large.")
     sol <- x$solutions[[which]]
     outcome <- x$outcome
+    if (match.arg(x$call$explain, c("positive", "negative"))=="positive") {
+      fzy <- data[, outcome]
+    } else {
+      fzy <- 1 - data[, outcome]
+    }
     ## only conduct for one solution indicated by which.
     idx1 <- which(sol==1,arr.ind=TRUE)
     idx0 <- which(sol==0,arr.ind=TRUE)
@@ -116,9 +126,9 @@ rawCoverageQCA <- function(x, data, which=1){
         }
         fzx <- apply(soli,1,min)
         solX[,i] <- fzx
-        ans[i,"rawCoverage"] <- coverage(x=fzx,y=data[,outcome])
+        ans[i,"rawCoverage"] <- coverage(x=fzx,y=fzy)
     }
-    ans[i+1,"rawCoverage"] <- coverage(x=apply(solX,1,max),y=data[,outcome])
+    ans[i+1,"rawCoverage"] <- coverage(x=apply(solX,1,max),y=fzy)
     implicantName <- apply(sol,1,function(obj) toString(obj,traditional=TRUE,nlevels=x$nlevels,conds))
     rownames(ans) <- c(implicantName,"[solution]")
     ans
@@ -131,6 +141,11 @@ uniqueCoverageQCA <- function(x, data, which=1){
     sol <- x$solutions[[which]]
     ## only conduct for one solution indicated by which.
     outcome <- x$outcome
+    if (match.arg(x$call$explain, c("positive", "negative"))=="positive") {
+      fzy <- data[, outcome]
+    } else {
+      fzy <- 1 - data[, outcome]
+    }
     idx1 <- which(sol==1,arr.ind=TRUE)
     idx0 <- which(sol==0,arr.ind=TRUE)
     Nimplicant <- nrow(sol)
@@ -153,19 +168,18 @@ uniqueCoverageQCA <- function(x, data, which=1){
         fzx <- apply(soli,1,min)
         solX[,i] <- fzx
     }
-    ans[Nimplicant+1,"uniqueCoverage"] <- coverage(x=apply(solX,1,max),y=data[,outcome])
+    ans[Nimplicant+1,"uniqueCoverage"] <- coverage(x=apply(solX,1,max),y=fzy)
     if (Nimplicant==1){
       ## only with one recipe
-      ans[1,"uniqueCoverage"] <- coverage(x=solX[,1], y=data[,outcome])
+      ans[1,"uniqueCoverage"] <- coverage(x=solX[,1], y=fzy)
     } else {
       ## with mutiple recipes
       for (i in seq(Nimplicant)){
         notifz <- apply(solX[, -i, drop=FALSE],1, max)
-        ans[i,"uniqueCoverage"] <- ans[Nimplicant+1,"uniqueCoverage"] - coverage(x=notifz, y=data[,outcome])
+        ans[i,"uniqueCoverage"] <- ans[Nimplicant+1,"uniqueCoverage"] - coverage(x=notifz, y=fzy)
       }
     }
     implicantName <- apply(sol,1,function(obj) toString(obj,traditional=TRUE,nlevels=x$nlevels,conds))
     rownames(ans) <- c(implicantName,"[solution]")
     ans
 }
-

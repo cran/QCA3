@@ -47,7 +47,7 @@ A numeric sequence from 0 to (nthreshold+1), with the attribute of thresholds.
   comparative analysis (QCA) and related techniques. ed by Benoit RiHoux
   and Charles Ragin. Sage.
     
-  Cronqvist, L. 2007. Tosmana user manual. \url{http://www.tosmana.net/tosmana_manual1_3beta.pdf}
+  Cronqvist, L. 2016. Tosmana user manual. \url{http://www.tosmana.net/downloads/tosmana_manual1_4.pdf}
 }
 \author{Ronggui HUANG}
 \examples{

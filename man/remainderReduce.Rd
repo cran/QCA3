@@ -1,5 +1,6 @@
 \name{remainderReduce}
 \alias{remainderReduce}
+\alias{print.remainders}
 \title{
 Remainder configurations.
 }

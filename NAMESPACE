@@ -15,6 +15,7 @@ S3method(consistency, default)
 S3method(print, coincid)
 S3method(print, PIChart)
 S3method(print, QCA)
+S3method(print, remainders)
 S3method(print, SA)
 #S3method(plot, QCA)
 S3method(print, suffnec)
@@ -30,3 +31,9 @@ S3method(summary, QCA)
 S3method('[',QCA)
 S3method(update,QCA)
 import(lpSolveAPI)
+importFrom("graphics", "abline", "barplot", "box", "mtext", "plot")
+importFrom("stats", "addmargins", "aggregate", "as.formula", "cutree",
+            "dist", "hclust", "model.frame", "model.matrix",
+            "model.response", "na.exclude", "na.omit", "pf", "qbeta",
+            "qnorm", "terms")
+importFrom("utils", "combn")

@@ -33,3 +33,19 @@ remainderReduce <- function(x,keepTruthTable = TRUE)
     ans
 }
 
+print.remainders <- function(x, traditional=TRUE, show.truthTable=FALSE,...){
+  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  PIs <- prettyPI(x, traditional=traditional)
+  Nec <- commonConfiguration(x,traditional=traditional)
+  if (!is.null(truthTable <- x$truthTable) && show.truthTable){
+    cat(sprintf("truthTable with %i configuration(s)\n\n",nrow(truthTable)))
+    print(truthTable)
+  }
+  cat(sprintf("\n----------------\nExplaining %i configuration(s)\n",nrow(x$explained)))
+  for (i in seq_len(length(PIs))) {
+    cat("\n----------------\n")
+    cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
+    writeLines(strwrap(PIs[[i]]$PI))
+    cat(sprintf("\nCommon configuration: %s\n",Nec[[i]]))
+  }
+}

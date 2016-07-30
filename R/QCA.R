@@ -270,7 +270,7 @@ PIChart <- function(primeImplicants,explained=NULL){
     }
     ans
   }
-  
+
   if (is.null(explained)){
     explained <- attr(primeImplicants,"explained")
   }
@@ -319,7 +319,7 @@ solvePIChart <- function(chart, all.sol=TRUE){
     combos <- combn(nrow(chart), k)
     sol.matrix <- combos[, apply(combos, 2, function(idx) all(colSums(chart[idx,,drop = FALSE])>0)),drop=FALSE]
     } else {
-      sol.matrix <- matrix(which(ans==1), ncol=1)   
+      sol.matrix <- matrix(which(ans==1), ncol=1)
     }
   }
   else {
@@ -595,21 +595,37 @@ prettyPI <- function(object,traditional=TRUE,...){
   ans
 } ## end of prettyPI()
 
-print.QCA <- function(x,traditional=TRUE,show.truthTable=FALSE,...){
-    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
-    PIs <- prettyPI(x,traditional=traditional)
-    Nec <- commonConfiguration(x,traditional=traditional)
-    if (!is.null(truthTable <- x$truthTable) && show.truthTable){
-        cat(sprintf("truthTable with %i configuration(s)\n\n",nrow(truthTable)))
-        print(truthTable)
+print.QCA <- function(x, traditional=TRUE, show.truthTable=FALSE,...){
+  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  PIs <- prettyPI(x, traditional=traditional)
+  Nec <- commonConfiguration(x,traditional=traditional)
+  if (!is.null(truthTable <- x$truthTable) && show.truthTable){
+    cat(sprintf("truthTable with %i configuration(s)\n\n",nrow(truthTable)))
+    print(truthTable)
+  }
+  cat(sprintf("\n----------------\nExplaining %i configuration(s)\n",nrow(x$explained)))
+  if (all(x$nlevels == 2)) {
+    ## only for csQCA and fsQCA
+    gof <- list()
+    for (i in seq(length(x$solutions))) {
+      gof[[i]] <- cbind(consistency(x, data=x$data, which=i),
+                        coverage(x, data=x$data, type="raw", which=i),
+                        coverage(x, data=x$data, type="unique", which=i))
     }
-    cat(sprintf("\n----------------\nExplaining %i configuration(s)\n",nrow(x$explained)))
     for (i in seq_len(length(PIs))) {
-        cat("\n----------------\n")
-        cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
-        writeLines(strwrap(PIs[[i]]$PI))
-        cat(sprintf("\nCommon configuration: %s\n",Nec[[i]]))
+      cat("\n----------------\n")
+      cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
+      print(gof[[i]])
+      cat(sprintf("\nCommon configuration: %s\n",Nec[[i]]))
     }
+  } else {
+    for (i in seq_len(length(PIs))) {
+      cat("\n----------------\n")
+      cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
+      writeLines(strwrap(PIs[[i]]$PI))
+      cat(sprintf("\nCommon configuration: %s\n",Nec[[i]]))
+    }
+  }
 }
 
 
@@ -684,7 +700,7 @@ print.summary.QCA <- function(x,digits=3,traditional=FALSE,...){
     for (i in seq_len(length(PIs))) {
       cat("\n----------------\n")
       cat(sprintf("Prime implicant No. %i with %i implicant(s)\n\n",i,PIs[[i]]$N))
-      writeLines(strwrap(PIs[[i]]$PI))
+      #writeLines(strwrap(PIs[[i]]$PI))
       cat("\nGoodness of fit", fill=TRUE)
       print(x$gof[[i]])
       cat("\n")

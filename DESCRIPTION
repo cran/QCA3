@@ -1,17 +1,17 @@
 Package: QCA3
 Type: Package
-Title: Yet another package for Qualitative Comparative Analysis
-Version: 0.0-7
-Date: 2014-04-28
+Title: Yet Another Package for Qualitative Comparative Analysis
+Version: 0.0-8
+Date: 2016-07-29
 Author: Ronggui HUANG
 Maintainer: Ronggui HUANG<ronggui.huang@gmail.com>
 Imports: lpSolveAPI
-Description: A set of functions for Qualitative Comparative Analysis (QCA). It can be used for various types of QCA (csQCA, mvQCA fsQCA and crip set TQCA  and time-serious QCA). It has methods for simplifying assumption, contradictory simplifying assumption.
+Description: A set of functions for Qualitative Comparative Analysis (QCA). It can be used for various types of QCA (csQCA, mvQCA fsQCA and crisp set TQCA  and time-serious QCA). It has methods for simplifying assumption, contradictory simplifying assumption.
 License: BSD_3_clause + file LICENSE
 LazyLoad: yes
 LazyData: yes
 URL: http://asrr.r-forge.r-project.org/
-Packaged: 2014-04-27 10:43:11 UTC; rghuang
 NeedsCompilation: no
+Packaged: 2016-07-30 02:11:01 UTC; rghuang
 Repository: CRAN
-Date/Publication: 2014-04-27 14:56:30
+Date/Publication: 2016-07-30 09:30:23
